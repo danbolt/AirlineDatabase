@@ -4,7 +4,6 @@ public class AirlineDB
 {
 	public AirlineDB()
 	{
-
 		new DatabaseAccess("test", "test");
 
 	} // AirlineDB()
