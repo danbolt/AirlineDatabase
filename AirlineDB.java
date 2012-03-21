@@ -4,7 +4,9 @@ public class AirlineDB
 {
 	public AirlineDB()
 	{
-		System.out.println("Hello world!");
+
+		new DatabaseAccess("test", "test");
+
 	} // AirlineDB()
 
 	public static void main(String args[])
