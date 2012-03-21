@@ -13,6 +13,14 @@ CREATE TABLE location
 	PRIMARY KEY(location_ID)
 );
 
+CREATE TABLE planeModel
+(
+	plane_ID INT NOT NULL AUTO_INCREMENT,
+	model VARCHAR(20),
+	capacity INT,
+	PRIMARY KEY(plane_ID)	
+);
+
 CREATE TABLE flight
 (
 	flightNo INT NOT NULL AUTO_INCREMENT,
@@ -23,14 +31,6 @@ CREATE TABLE flight
 	FOREIGN KEY(locationFrom) REFERENCES location(location_ID),
 	FOREIGN KEY(locationTo) REFERENCES location(location_ID),
 	FOREIGN KEY(planeModel) REFERENCES planeModel(plane_ID)
-);
-
-CREATE TABLE planeModel
-(
-	plane_ID INT NOT NULL AUTO_INCREMENT,
-	model VARCHAR(20),
-	capacity INT,
-	PRIMARY KEY(plane_ID)	
 );
 
 CREATE TABLE airline
@@ -60,7 +60,7 @@ CREATE TABLE outgoing
 CREATE TABLE arrivals
 (
 	arrival_ID INT NOT NULL AUTO_INCREMENT,
-	incomingPlane,
+	incomingPlane INT,
 	gate VARCHAR(10),
 	arrivalDate DATETIME,
 	arrivalStatus ENUM('Arrived', 'Delayed', 'Cancelled', 'On Time'),
@@ -68,7 +68,7 @@ CREATE TABLE arrivals
 	FOREIGN KEY(incomingPlane) REFERENCES incoming(flightNo)
 );
 
-CREATE TABLE departues
+CREATE TABLE departures
 (
 	departure_ID INT NOT NULL AUTO_INCREMENT,
 	outgoingPlane INT,
@@ -86,7 +86,7 @@ CREATE TABLE passengers
 	dateOfBirth DATETIME,
 	placeOfBirth VARCHAR(50),
 	citizenship VARCHAR(30),
-	PRIMARY KEY(passportNumber),
+	PRIMARY KEY(passportNumber)
 );
 
 CREATE TABLE class
