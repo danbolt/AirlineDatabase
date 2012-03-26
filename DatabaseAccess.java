@@ -33,6 +33,28 @@ public class DatabaseAccess
 		{
 			if (connect != null)
 			{
+				
+				try
+				{
+					String statementString = "SELECT * FROM airline";
+
+					Statement testStatement = connect.createStatement();
+					ResultSet rset = testStatement.executeQuery(statementString);
+					
+					while (rset.next())
+					{
+						String s = rset.getString("name");
+						System.out.println(s);
+					}
+
+					testStatement.close();
+				}
+				catch (Exception e)
+				{
+					System.out.println("Error with creating a statement.");
+					e.printStackTrace();
+				}
+
 				try
 				{
 					connect.close();
