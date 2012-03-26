@@ -13,59 +13,77 @@ import java.sql.*;
 
 public class DatabaseAccess
 {
-	public DatabaseAccess(String username, String password)
+	String username = "";
+	String password = "";
+	String dbURL = "";
+	
+	Connection connect = null;
+
+	public DatabaseAccess(String newUsername, String newPassword, String url)
 	{
-		Connection connect = null;
-		
+		username = newUsername;
+		password = newPassword;
+		dbURL = url;
+	} // DatabaseAccess()
+	
+	public boolean openConnection()
+	{
 		try
 		{
-			String url = "jdbc:mysql://localhost/airlineDB";
 			Class.forName ("com.mysql.jdbc.Driver").newInstance();
-			connect = DriverManager.getConnection(url, username, password);
+			connect = DriverManager.getConnection(dbURL, username, password);
 			System.out.println("Connection to database successful!");
+			return true;
 		}
 		catch (Exception e)
 		{
 			System.err.println("Cannot connect to the database");
 			e.printStackTrace();
+			return false;
 		}
-		finally
+	} // bool openConnection();
+	
+	public void closeConnection()
+	{
+		if (connect != null)
 		{
-			if (connect != null)
+			try
 			{
-				
-				try
-				{
-					String statementString = "SELECT * FROM airline";
-
-					Statement testStatement = connect.createStatement();
-					ResultSet rset = testStatement.executeQuery(statementString);
-					
-					while (rset.next())
-					{
-						String s = rset.getString("name");
-						System.out.println(s);
-					}
-
-					testStatement.close();
-				}
-				catch (Exception e)
-				{
-					System.out.println("Error with creating a statement.");
-					e.printStackTrace();
-				}
-
-				try
-				{
-					connect.close();
-					System.out.println("Database connection closed");
-				}
-				catch (Exception e)
-				{
-					// whatever
-				}
+				connect.close();
+				System.out.println("Database connection closed");
+			}
+			catch (Exception e)
+			{
+				// whatever
 			}
 		}
-	} // DatabaseAccess()
+	} //void closeConnection
+	
+	public void printAirlines()
+	{
+		if (connect != null)
+		{
+			try
+			{
+				String statementString = "SELECT * FROM airline";
+
+				Statement testStatement = connect.createStatement();
+				ResultSet rset = testStatement.executeQuery(statementString);
+				
+				while (rset.next())
+				{
+					String s = rset.getString("name");
+					System.out.println(s);
+				}
+
+				testStatement.close();
+			}
+			catch (Exception e)
+			{
+				System.out.println("Error with creating a statement.");
+				e.printStackTrace();
+			}
+		}
+	}
 
 } // class DatabaseAccess

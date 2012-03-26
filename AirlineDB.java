@@ -4,7 +4,12 @@ public class AirlineDB
 {
 	public AirlineDB()
 	{
-		new DatabaseAccess("test", "test");
+		DatabaseAccess db = new DatabaseAccess("test", "test", "jdbc:mysql://localhost/airlineDB");
+		if(db.openConnection())
+		{
+			db.printAirlines();
+			db.closeConnection();
+		}
 
 	} // AirlineDB()
 
