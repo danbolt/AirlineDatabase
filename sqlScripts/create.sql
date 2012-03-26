@@ -1,11 +1,11 @@
 -- AirlineDB DB + Table Creation SQL Script
 -- CSC 370 Project
 -- Written by Justin Sketchley and Daniel Savage
--------------------------------------------------------
+-- -----------------------------------------------------
 
 CREATE DATABASE airlineDB;
 
---- entity sets start here ---
+-- entity sets start here ---
 CREATE TABLE location
 (
 	location_ID INT NOT NULL AUTO_INCREMENT,
@@ -18,7 +18,7 @@ CREATE TABLE planeModel
 	plane_ID INT NOT NULL AUTO_INCREMENT,
 	model VARCHAR(20),
 	capacity INT,
-	PRIMARY KEY(plane_ID)	
+	PRIMARY KEY(plane_ID)
 );
 
 CREATE TABLE flight
@@ -95,9 +95,9 @@ CREATE TABLE class
 	classType ENUM('FIRST CLASS', 'ECONOMY', 'HANDICAPPED'),
 	PRIMARY KEY(class_ID)
 );
---- entity sets end here
+-- entity sets end here
 
---- relationships start here ---
+-- relationships start here ---
 
 CREATE TABLE departureFliesOn
 (
@@ -131,4 +131,4 @@ CREATE TABLE OperatesFlights
     FOREIGN KEY(airline_ID) REFERENCES airline(airline_ID),
     FOREIGN KEY(flightNo) REFERENCES flight(flightNo)
 );
---- relationships end here ---
+-- relationships end here ---
