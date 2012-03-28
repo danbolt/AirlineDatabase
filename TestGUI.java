@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -8,10 +9,34 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 
 	JTable table;
 	JScrollPane tableScrollPane;
-	
+
 	private void fillTables()
 	{
 		System.out.println("Here!");
+		
+		String titles[] = {"Airline", "Website"};
+		String data[][] = {{"Spike", "www.spike.com"},
+  		       		   {"Jet", "www.jet.com"},
+  		       		   {"Faye", "www.faye.com"},
+  		       		   {"Ed", "www.ed.com"},
+  		       		   {"Ein", "www.ein.com"},
+  		       		   {"Julia", "www.julia.com"},
+   		       		   {"Vicious", "www.vicious.com"}};
+
+		DefaultTableModel tm = (DefaultTableModel)table.getModel();
+		tm.setColumnCount(2);
+		tm.setColumnIdentifiers(titles);
+		while (tm.getRowCount() > 0)
+		{
+			tm.removeRow(0);
+		}
+		
+		for (int i = 0; i < data.length; i++)
+		{
+			tm.addRow(data[i]);
+		}
+
+		tm.fireTableDataChanged();
 	}
 
 	public TestGUI ()
