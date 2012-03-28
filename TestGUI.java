@@ -1,27 +1,39 @@
+import java.util.ArrayList;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 
+class WindowEventHandler extends WindowAdapter
+{
+	public void windowClosing(WindowEvent evt)
+	{
+		TestGUI.database.closeConnection();
+		System.exit(0);
+	}
+}
+
 public class TestGUI extends JFrame implements Runnable, ActionListener
 {
+	public static DatabaseAccess database;
+
 	JPanel rootPanel;
 
 	JTable table;
 	JScrollPane tableScrollPane;
+
+	public static boolean open = true;
 
 	private void fillTables()
 	{
 		System.out.println("Here!");
 		
 		String titles[] = {"Airline", "Website"};
-		String data[][] = {{"Spike", "www.spike.com"},
-  		       		   {"Jet", "www.jet.com"},
-  		       		   {"Faye", "www.faye.com"},
-  		       		   {"Ed", "www.ed.com"},
-  		       		   {"Ein", "www.ein.com"},
-  		       		   {"Julia", "www.julia.com"},
-   		       		   {"Vicious", "www.vicious.com"}};
+		String data[][] = new String[database.returnQuery().get(0).length][database.returnQuery().size()];
+		data = database.returnQuery().toArray(data);
+		
+		System.out.println(database.returnQuery().get(0)[0]);
 
 		DefaultTableModel tm = (DefaultTableModel)table.getModel();
 		tm.setColumnCount(2);
@@ -39,9 +51,14 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		tm.fireTableDataChanged();
 	}
 
-	public TestGUI ()
+	public TestGUI (DatabaseAccess newDB)
 	{
 		super("Airline Database");
+		
+		addWindowListener(new WindowEventHandler());
+		this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);   // Sets the behaviour for when the window is closed
+		
+		database = newDB;
 		
 		rootPanel = new JPanel();
 
@@ -66,9 +83,6 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 	@Override
 	public void run()
 	{
-		// Sets the behaviour for when the window is closed
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
 		rootPanel.setPreferredSize(new Dimension(500,500));
 
 		add(rootPanel);
@@ -91,11 +105,12 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		this.setVisible(true);
     }
 
+    /*
     public static void main(String[] args)
     {
         TestGUI se = new TestGUI();
 
         // Schedules the application to be run at the correct time in the event queue.
         SwingUtilities.invokeLater(se);
-    }
+    }         */
 }
