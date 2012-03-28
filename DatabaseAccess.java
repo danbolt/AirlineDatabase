@@ -84,6 +84,33 @@ public class DatabaseAccess
 				e.printStackTrace();
 			}
 		}
-	}
+	} // void printAirlines
+	
+	public void addAirline(String name, String website)
+	{
+		if (connect != null)
+		{
+			try
+			{
+				String statementString = "INSERT INTO airline (name, website) VALUES ('" + name + "', '" + website +"')";
+
+				Statement insertStatement = connect.createStatement();
+				ResultSet rset = insertStatement.executeUpdate(statementString);
+				
+				while (rset.next())
+				{
+					String s = rset.getString("name");
+					System.out.println(s);
+				}
+
+				testStatement.close();
+			}
+			catch (Exception e)
+			{
+				System.out.println("Error with creating a statement.");
+				e.printStackTrace();
+			}
+		}
+	} // bool addAirline
 
 } // class DatabaseAccess
