@@ -87,6 +87,164 @@ public class DatabaseAccess
 		}
 	} // void printAirlines
         
+        /*
+         * Given an airline name, prints a list of flight numbers that airline operates
+         */
+        public ArrayList<Integer> printAirlineFlights(String airlineName)
+	{
+            
+                int airlineID;
+                ArrayList<Integer> flightNo = new ArrayList<Integer>();
+		if (connect != null)
+		{
+			try
+			{
+				String statementString = "SELECT * FROM airline";
+
+				Statement testStatement = connect.createStatement();
+				ResultSet rset = testStatement.executeQuery(statementString);
+				
+				while (rset.next())
+				{
+					String s = rset.getString("name");
+					if(s.equalsIgnoreCase(airlineName)) {
+                                            airlineID = rset.getInt("airline_ID");
+                                            String queryString = "SELECT * FROM OperatesFlights WHERE airline_ID = " + airlineID;
+                                            Statement queryStatement = connect.createStatement();
+                                            ResultSet results = queryStatement.executeQuery(queryString);
+                                            while(results.next()){
+                                                flightNo.add(results.getInt("flightNo"));
+                                            }
+                                            break;
+                                        }
+				}
+
+				testStatement.close();
+			}
+			catch (Exception e)
+			{
+				System.out.println("Error with creating a statement.");
+				e.printStackTrace();
+			}
+		}
+                return flightNo;
+	} 
+
+        /*
+         * Given a location, print all flight numbers to or from that location
+         */
+        public ArrayList<Integer> printFlightsToFrom(String locationName)
+	{
+            
+                int locationID;
+                ArrayList<Integer> flightNo = new ArrayList<Integer>();
+		if (connect != null)
+		{
+			try
+			{
+				String statementString = "SELECT * FROM location";
+
+				Statement testStatement = connect.createStatement();
+				ResultSet rset = testStatement.executeQuery(statementString);
+				
+				while (rset.next())
+				{
+					String s = rset.getString("name");
+					if(s.equalsIgnoreCase(locationName)) {
+                                            locationID = rset.getInt("location_ID");
+                                            String queryString = "SELECT * FROM flight WHERE locationTo = " + locationID + " OR locationFrom = "+ locationID;
+                                            Statement queryStatement = connect.createStatement();
+                                            ResultSet results = queryStatement.executeQuery(queryString);
+                                            while(results.next()){
+                                                flightNo.add(results.getInt("flightNo"));
+                                            }
+                                            queryStatement.close();
+                                            break;
+                                        }
+				}
+
+				testStatement.close();
+			}
+			catch (Exception e)
+			{
+				System.out.println("Error with creating a statement.");
+				e.printStackTrace();
+			}
+		}
+                return flightNo;
+	}
+        
+        /*
+         * Given a string of time (HH:MM:SS) find flights around that time
+         */
+        public ArrayList<String[]> printFlightsTime(String aroundTime)
+	{
+                
+                java.sql.Time sqlTime = java.sql.Time.valueOf(aroundTime);
+                java.sql.Time retrievedTime;
+                String flight,status;
+                ArrayList<String[]> output = new ArrayList<String[]>();
+		if (connect != null)
+		{
+			try
+			{
+				String statementString = "SELECT * FROM arrivals";
+
+				Statement testStatement = connect.createStatement();
+				ResultSet rset = testStatement.executeQuery(statementString);
+				
+				while (rset.next())
+				{
+                                        retrievedTime = rset.getTime("arrivalDate");
+                                        if((retrievedTime.getTime() > sqlTime.getTime() &&
+                                                retrievedTime.getTime() < sqlTime.getTime() + 1800000) || 
+                                                retrievedTime.getTime() < sqlTime.getTime() &&
+                                                retrievedTime.getTime() > sqlTime.getTime() - 1800000){
+                                            
+                                            String[] row = new String[2];
+                                            flight = rset.getString("incomingPlane");
+                                            status = rset.getString("arrivalStatus");
+                                            row[0] = flight;
+                                            row[1] = status;
+                                            output.add(row);
+                                        }
+                                                
+				}
+
+				testStatement.close();
+                                String secondString = "SELECT * FROM departures";
+
+				Statement secondStatement = connect.createStatement();
+				ResultSet results = secondStatement.executeQuery(secondString);
+				
+				while (results.next())
+				{
+                                        retrievedTime = results.getTime("arrivalDate");
+                                        if((retrievedTime.getTime() > sqlTime.getTime() &&
+                                                retrievedTime.getTime() < sqlTime.getTime() + 1800000) || 
+                                                retrievedTime.getTime() < sqlTime.getTime() &&
+                                                retrievedTime.getTime() > sqlTime.getTime() - 1800000){
+                                            
+                                            String[] row = new String[2];
+                                            flight = results.getString("incomingPlane");
+                                            status = results.getString("arrivalStatus");
+                                            row[0] = flight;
+                                            row[1] = status;
+                                            output.add(row);
+                                        }
+                                                
+				}
+                                secondStatement.close();
+			}
+			catch (Exception e)
+			{
+				System.out.println("Error with creating a statement.");
+				e.printStackTrace();
+			}
+		}
+                return output;
+	}
+        
         public ArrayList<String[]> returnQuery()
 	{
                 ArrayList<String[]> output = new ArrayList<String[]>();
@@ -141,7 +299,6 @@ public class DatabaseAccess
                                 System.out.println(statementString);
 				Statement insertStatement = connect.createStatement();
                                 insertStatement.executeUpdate(statementString);
-				
 
 				insertStatement.close();
 			}
@@ -151,6 +308,7 @@ public class DatabaseAccess
 				e.printStackTrace();
 			}
 		}
+                
 	} // bool addAirline
 
 } // class DatabaseAccess
