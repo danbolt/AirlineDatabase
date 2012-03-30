@@ -99,26 +99,14 @@ CREATE TABLE class
 
 -- relationships start here ---
 
-CREATE TABLE departureFliesOn
+CREATE TABLE FliesOn
 (
-	departure_ID INT,
+	flight_ID INT,
 	passengerPassport INT,
-	baggage INT,
+	baggage INT NOT NULL AUTO_INCREMENT,
 	class_ID INT,
-	PRIMARY KEY(departure_ID,passengerPassport),
-	FOREIGN KEY(departure_ID) REFERENCES departures(departure_ID),
-	FOREIGN KEY(passengerPassport) REFERENCES passengers(passportNumber),
-	FOREIGN KEY(class_ID) REFERENCES class(class_ID)	
-);
-
-CREATE TABLE arrivalFliesOn
-(
-	arrival_ID INT,
-	passengerPassport INT,
-	baggage INT,
-	class_ID INT,
-	PRIMARY KEY(arrival_ID,passengerPassport),
-	FOREIGN KEY(arrival_ID) REFERENCES arrivals(arrival_ID),
+	PRIMARY KEY(flight_ID,passengerPassport),
+	FOREIGN KEY(flight_ID) REFERENCES flight(flightNo),
 	FOREIGN KEY(passengerPassport) REFERENCES passengers(passportNumber),
 	FOREIGN KEY(class_ID) REFERENCES class(class_ID)	
 );

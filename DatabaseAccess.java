@@ -245,6 +245,48 @@ public class DatabaseAccess
                 return output;
 	}
         
+        /*
+         * Given a flight number, prints information about all passengers on it.
+         */
+        public ArrayList<String[]> printArrivalPassengers(int flightNo)
+	{
+                ArrayList<String[]> output = new ArrayList<String[]>();
+                
+		if (connect != null)
+		{
+			try
+			{
+				String statementString = "SELECT * FROM passengers WHERE passportNumber IN"
+                                        + "(SELECT passengerPassport FROM FliesOn WHERE Flight_ID = "
+                                        + flightNo + ")";
+
+				Statement testStatement = connect.createStatement();
+				ResultSet rset = testStatement.executeQuery(statementString);
+				
+				while (rset.next())
+				{
+                                        String row[] = new String[5];
+                                        row[0] = rset.getString("passportNumber");
+                                        row[1] = rset.getString("name");
+                                        row[2] = rset.getString("dateOfBirth");
+                                        row[3] = rset.getString("placeOfBirth");
+                                        row[4] = rset.getString("citizenship");
+                                        output.add(row);
+				}
+
+				testStatement.close();
+                                
+                                
+			}
+			catch (Exception e)
+			{
+				System.out.println("Error with creating a statement.");
+				e.printStackTrace();
+			}
+		}
+                return output;
+	}
+        
         public ArrayList<String[]> returnQuery()
 	{
                 ArrayList<String[]> output = new ArrayList<String[]>();
@@ -309,6 +351,6 @@ public class DatabaseAccess
 			}
 		}
                 
-	} // bool addAirline
+	}
 
 } // class DatabaseAccess
