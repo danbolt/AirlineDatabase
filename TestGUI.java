@@ -20,11 +20,11 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 	// enum that sets what table is currently being shown
 	private enum TableState
 	{
-		AIRLINE, FLIGHT, INCOMING, OUTGOING, ARRIVALS, DEPARTURES, PASSENGERS, CLASS, LOCATION
+		AIRLINE, FLIGHT, INCOMING, OUTGOING, ARRIVALS, DEPARTURES, PASSENGERS, CLASS, LOCATION, PLANEMODEL
 	}
 
 	public static DatabaseAccess database;
-	
+
 	TableState currentState = TableState.AIRLINE;
 
 	JPanel rootPanel;
@@ -32,7 +32,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 
 	JTable table;
 	JScrollPane tableScrollPane;
-	
+
 	ArrayList<JFormattedTextField> textFieldList;
 
 	public static boolean open = true;
@@ -58,9 +58,12 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		switch (currentState)
 		{
 			case AIRLINE:
-			String[] cols = {"name", "website"};
-			database.addToDatabase("airline", cols, entryValuesString);
+			String[] airlineCols = {"name", "website"};
+			database.addToDatabase("airline", airlineCols, entryValuesString);
 			break;
+			case LOCATION:
+                        String[] locationCols = {"name"};
+                        database.addToDatabase("location", locationCols, entryValuesString);
 			default:
 			break;
 		}
@@ -76,12 +79,38 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		for (int i = 0; i < textFieldList.size(); i++)
                 {
 			JPanel pan = new JPanel();
-			pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "test" + i));
+			
+			// determine the labels first by placement, then by state
+			switch (i)
+			{
+				case 0:
+				if (currentState == TableState.AIRLINE)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Airline"));
+				}
+				if (currentState == TableState.LOCATION)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Location Name"));
+				}
+				break;
+				case 1:
+				if (currentState == TableState.AIRLINE)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Website"));
+				}
+				break;
+				case 2:
+				break;
+				case 3:
+				break;
+				case 4:
+				break;
+			}
 			textFieldList.get(i).setText("");
 			pan.add(textFieldList.get(i));
 			fieldsPanel.add(pan);
 		}
-		
+
 		fieldsPanel.getRootPane().revalidate();
 	}
 	
@@ -99,6 +128,16 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				textFieldList.add(fld);
 			}
 			break;
+			case LOCATION:
+			textFieldList.clear();
+			for (int i = 0; i < 1; i++)
+			{
+				JFormattedTextField fld = new JFormattedTextField();
+				fld.setText("TEST" + i);
+				fld.setColumns(10);
+				textFieldList.add(fld);
+			}
+			break;
 		}
 		
 		currentState = newState;
@@ -106,18 +145,33 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 
 	private void fillTables()
 	{
-		String titles[] = {"Airline", "Website"};
 		String data[][] = new String[database.returnQuery().get(0).length][database.returnQuery().size()];
 		data = database.returnQuery().toArray(data);
 
 		DefaultTableModel tm = (DefaultTableModel)table.getModel();
-		tm.setColumnCount(2);
-		tm.setColumnIdentifiers(titles);
+		
+		switch (currentState)
+		{
+			case AIRLINE:
+			tm.setColumnCount(2);
+			String airlineTitles[] = {"Airline", "Website"};
+			tm.setColumnIdentifiers(airlineTitles);
+			break;
+			default:
+			tm.setColumnCount(database.returnQuery().get(0).length);
+			break;
+			case LOCATION:
+			tm.setColumnCount(1);
+			String locationTitles[] = {"Location Name"};
+			tm.setColumnIdentifiers(locationTitles);
+			break;
+		}
+
+		//empty the table's rows and refill them with the pulled DB data
 		while (tm.getRowCount() > 0)
 		{
 			tm.removeRow(0);
 		}
-		
 		for (int i = 0; i < data.length; i++)
 		{
 			tm.addRow(data[i]);
@@ -129,7 +183,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 	public TestGUI (DatabaseAccess newDB)
 	{
 		super("Airline Database");
-		
+
 		addWindowListener(new WindowEventHandler());
 		this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);   // Sets the behaviour for when the window is closed
 		
