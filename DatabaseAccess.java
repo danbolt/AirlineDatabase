@@ -274,9 +274,7 @@ public class DatabaseAccess
                                         output.add(row);
 				}
 
-				testStatement.close();
-                                
-                                
+				testStatement.close();                            
 			}
 			catch (Exception e)
 			{
@@ -285,6 +283,35 @@ public class DatabaseAccess
 			}
 		}
                 return output;
+	}
+        
+        public int printBaggage(int passenger)
+	{               
+                int baggage = -1;
+		if (connect != null)
+		{
+			try
+			{
+				String statementString = "SELECT baggage FROM FliesOn WHERE passengerPassport = "
+                                        + passenger;
+
+				Statement testStatement = connect.createStatement();
+				ResultSet rset = testStatement.executeQuery(statementString);
+				
+				while (rset.next())
+				{
+                                    baggage = rset.getInt("baggage");
+				}
+
+				testStatement.close();                            
+			}
+			catch (Exception e)
+			{
+				System.out.println("Error with creating a statement.");
+				e.printStackTrace();
+			}
+		}
+                return baggage;
 	}
         
         public ArrayList<String[]> returnQuery()
