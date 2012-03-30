@@ -17,9 +17,18 @@ class WindowEventHandler extends WindowAdapter
 
 public class TestGUI extends JFrame implements Runnable, ActionListener
 {
+	// enum that sets what table is currently being shown
+	private enum TableState
+	{
+		AIRLINE, FLIGHT, INCOMING, OUTGOING, ARRIVALS, DEPARTURES, PASSENGERS, CLASS, LOCATION
+	}
+
 	public static DatabaseAccess database;
+	
+	TableState currentState = TableState.AIRLINE;
 
 	JPanel rootPanel;
+	JPanel fieldsPanel;
 
 	JTable table;
 	JScrollPane tableScrollPane;
@@ -30,7 +39,69 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 
 	private void addEntry()
 	{
-		System.out.println("HEAD");
+		ArrayList<String> entryValues = new ArrayList<String>();
+
+		for (int i = 0; i < textFieldList.size(); i++)
+                {
+			// if a field is empty, don't bother adding the content (for now)
+			if (textFieldList.get(i).getText().length() < 1)
+			{
+				return;
+			}
+
+			entryValues.add(textFieldList.get(i).getText());
+		}
+		
+		String[] entryValuesString = new String[entryValues.size()];
+		entryValuesString = entryValues.toArray(entryValuesString);
+		
+		switch (currentState)
+		{
+			case AIRLINE:
+			String[] cols = {"name", "website"};
+			database.addToDatabase("airline", cols, entryValuesString);
+			break;
+			default:
+			break;
+		}
+
+		reloadEntries();
+		fillTables();
+	}
+	
+	private void reloadEntries()
+	{
+		fieldsPanel.removeAll();
+
+		for (int i = 0; i < textFieldList.size(); i++)
+                {
+			JPanel pan = new JPanel();
+			pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "test" + i));
+			textFieldList.get(i).setText("");
+			pan.add(textFieldList.get(i));
+			fieldsPanel.add(pan);
+		}
+		
+		fieldsPanel.getRootPane().revalidate();
+	}
+	
+	private void changeState(TableState newState)
+	{
+		switch (newState)
+		{
+			case AIRLINE:
+			textFieldList.clear();
+			for (int i = 0; i < 2; i++)
+			{
+				JFormattedTextField fld = new JFormattedTextField();
+				fld.setText("TEST" + i);
+				fld.setColumns(10);
+				textFieldList.add(fld);
+			}
+			break;
+		}
+		
+		currentState = newState;
 	}
 
 	private void fillTables()
@@ -65,10 +136,8 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		database = newDB;
 		
 		textFieldList = new ArrayList<JFormattedTextField>();
-		for (int i = 0; i < 3; i++)
-		{
-			textFieldList.add(new JFormattedTextField());
-		}
+		
+		changeState(TableState.AIRLINE);
 
 		rootPanel = new JPanel();
 
@@ -122,14 +191,12 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		jb.addActionListener(this);
                 addPanel.add(jb);
                 
-                JPanel fieldsPanel = new JPanel();
+                fieldsPanel = new JPanel();
+                fieldsPanel.setPreferredSize(new Dimension(400,200));
                 fieldsPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
                 rootPanel.add(fieldsPanel);
-
-                for (int i = 0; i < textFieldList.size(); i++)
-                {
-			fieldsPanel.add(textFieldList.get(i));
-		}
+                
+                reloadEntries();
 
 		// arrange the components inside the window
 		this.pack();
