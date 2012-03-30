@@ -2,6 +2,7 @@ import java.util.ArrayList;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -22,18 +23,21 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 
 	JTable table;
 	JScrollPane tableScrollPane;
+	
+	ArrayList<JFormattedTextField> textFieldList;
 
 	public static boolean open = true;
 
+	private void addEntry()
+	{
+		System.out.println("HEAD");
+	}
+
 	private void fillTables()
 	{
-		System.out.println("Here!");
-		
 		String titles[] = {"Airline", "Website"};
 		String data[][] = new String[database.returnQuery().get(0).length][database.returnQuery().size()];
 		data = database.returnQuery().toArray(data);
-		
-		System.out.println(database.returnQuery().get(0)[0]);
 
 		DefaultTableModel tm = (DefaultTableModel)table.getModel();
 		tm.setColumnCount(2);
@@ -60,6 +64,12 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		
 		database = newDB;
 		
+		textFieldList = new ArrayList<JFormattedTextField>();
+		for (int i = 0; i < 3; i++)
+		{
+			textFieldList.add(new JFormattedTextField());
+		}
+
 		rootPanel = new JPanel();
 
 		table = new JTable(30, 5);
@@ -68,7 +78,6 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		tableScrollPane = new JScrollPane(table);
 		tableScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		tableScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-
 	}
 	
 	@Override
@@ -77,6 +86,11 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		if ("test".equals(e.getActionCommand()))
 		{
 			fillTables();
+		}
+		
+		if ("add".equals(e.getActionCommand()))
+		{
+			addEntry();
 		}
 	}
 	
@@ -93,24 +107,33 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 
 		// add a label and a button
 		rootPanel.add(tableScrollPane);
+
+                JPanel addPanel = new JPanel();
+                addPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+                rootPanel.add(addPanel);
+
 		JButton jb = new JButton("Fill Tables");
 		jb.setActionCommand("test");
 		jb.addActionListener(this);
-		rootPanel.add(jb);
-		rootPanel.add(new JButton("hello"));
+		addPanel.add(jb);
+
+		jb = new JButton("Add A Row");
+		jb.setActionCommand("add");
+		jb.addActionListener(this);
+                addPanel.add(jb);
+                
+                JPanel fieldsPanel = new JPanel();
+                fieldsPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+                rootPanel.add(fieldsPanel);
+
+                for (int i = 0; i < textFieldList.size(); i++)
+                {
+			fieldsPanel.add(textFieldList.get(i));
+		}
 
 		// arrange the components inside the window
 		this.pack();
 		//By default, the window is not visible. Make it visible.
 		this.setVisible(true);
     }
-
-    /*
-    public static void main(String[] args)
-    {
-        TestGUI se = new TestGUI();
-
-        // Schedules the application to be run at the correct time in the event queue.
-        SwingUtilities.invokeLater(se);
-    }         */
 }

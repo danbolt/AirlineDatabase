@@ -15,8 +15,6 @@ public class AirlineDB
 		if(db.openConnection())
 		{
 			//
-
-
 		}
 	}
 
