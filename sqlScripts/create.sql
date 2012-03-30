@@ -28,9 +28,9 @@ CREATE TABLE flight
 	locationTo INT,
 	planeModel INT,
 	PRIMARY KEY(flightNo),
-	FOREIGN KEY(locationFrom) REFERENCES location(location_ID),
-	FOREIGN KEY(locationTo) REFERENCES location(location_ID),
-	FOREIGN KEY(planeModel) REFERENCES planeModel(plane_ID)
+	FOREIGN KEY(locationFrom) REFERENCES location(location_ID) ON DELETE CASCADE,
+	FOREIGN KEY(locationTo) REFERENCES location(location_ID) ON DELETE CASCADE,
+	FOREIGN KEY(planeModel) REFERENCES planeModel(plane_ID) ON DELETE CASCADE
 );
 
 CREATE TABLE airline
@@ -46,7 +46,7 @@ CREATE TABLE incoming
 	flightNo INT,
 	plannedArrivalTime DATETIME,
 	PRIMARY KEY(flightNo),
-	FOREIGN KEY(flightNo) REFERENCES flight(flightNo)
+	FOREIGN KEY(flightNo) REFERENCES flight(flightNo) ON DELETE CASCADE
 );
 
 CREATE TABLE outgoing
@@ -54,7 +54,7 @@ CREATE TABLE outgoing
 	flightNo INT,
 	plannedDepartureTime DATETIME,
 	PRIMARY KEY(flightNo),
-	FOREIGN KEY(flightNo) REFERENCES flight(flightNo)
+	FOREIGN KEY(flightNo) REFERENCES flight(flightNo) ON DELETE CASCADE
 );
 
 CREATE TABLE arrivals
@@ -65,7 +65,7 @@ CREATE TABLE arrivals
 	arrivalDate DATETIME,
 	arrivalStatus ENUM('Arrived', 'Delayed', 'Cancelled', 'On Time'),
 	PRIMARY KEY(arrival_ID),
-	FOREIGN KEY(incomingPlane) REFERENCES incoming(flightNo)
+	FOREIGN KEY(incomingPlane) REFERENCES incoming(flightNo) ON DELETE CASCADE
 );
 
 CREATE TABLE departures
@@ -76,7 +76,7 @@ CREATE TABLE departures
 	departureDate DATETIME,
 	departureStatus ENUM('Departed', 'Delayed', 'Cancelled'),
 	PRIMARY KEY(departure_ID),
-	FOREIGN KEY(outgoingPlane) REFERENCES outgoing(flightNo)
+	FOREIGN KEY(outgoingPlane) REFERENCES outgoing(flightNo) ON DELETE CASCADE
 );
 
 CREATE TABLE passengers
@@ -106,9 +106,9 @@ CREATE TABLE FliesOn
 	baggage INT NOT NULL AUTO_INCREMENT,
 	class_ID INT,
 	PRIMARY KEY(flight_ID,passengerPassport),
-	FOREIGN KEY(flight_ID) REFERENCES flight(flightNo),
-	FOREIGN KEY(passengerPassport) REFERENCES passengers(passportNumber),
-	FOREIGN KEY(class_ID) REFERENCES class(class_ID)	
+	FOREIGN KEY(flight_ID) REFERENCES flight(flightNo) ON DELETE CASCADE,
+	FOREIGN KEY(passengerPassport) REFERENCES passengers(passportNumber) ON DELETE CASCADE,
+	FOREIGN KEY(class_ID) REFERENCES class(class_ID) ON DELETE CASCADE	
 );
 
 CREATE TABLE OperatesFlights
@@ -116,7 +116,7 @@ CREATE TABLE OperatesFlights
     airline_ID INT,
     flightNo INT,
     PRIMARY KEY(airline_ID,flightNo),
-    FOREIGN KEY(airline_ID) REFERENCES airline(airline_ID),
-    FOREIGN KEY(flightNo) REFERENCES flight(flightNo)
+    FOREIGN KEY(airline_ID) REFERENCES airline(airline_ID) ON DELETE CASCADE,
+    FOREIGN KEY(flightNo) REFERENCES flight(flightNo) ON DELETE CASCADE
 );
 -- relationships end here ---
