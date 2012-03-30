@@ -145,8 +145,8 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 
 	private void fillTables()
 	{
-		String data[][] = new String[database.returnQuery().get(0).length][database.returnQuery().size()];
-		data = database.returnQuery().toArray(data);
+		String data[][] = new String[database.returnQuery("airline").get(0).length][database.returnQuery("airline").size()];
+		data = database.returnQuery("airline").toArray(data);
 
 		DefaultTableModel tm = (DefaultTableModel)table.getModel();
 		
@@ -156,9 +156,6 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			tm.setColumnCount(2);
 			String airlineTitles[] = {"Airline", "Website"};
 			tm.setColumnIdentifiers(airlineTitles);
-			break;
-			default:
-			tm.setColumnCount(database.returnQuery().get(0).length);
 			break;
 			case LOCATION:
 			tm.setColumnCount(1);
