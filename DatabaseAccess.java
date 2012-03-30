@@ -314,26 +314,27 @@ public class DatabaseAccess
                 return baggage;
 	}
         
-        public ArrayList<String[]> returnQuery()
+        public ArrayList<String[]> returnQuery(String tableName)
 	{
                 ArrayList<String[]> output = new ArrayList<String[]>();
-                String name;
-                String website;
+                int colCount;
 		if (connect != null)
 		{
 			try
 			{
-				String statementString = "SELECT * FROM airline";
+				String statementString = "SELECT * FROM " + tableName;
 
 				Statement testStatement = connect.createStatement();
 				ResultSet rset = testStatement.executeQuery(statementString);
+                                
+                                ResultSetMetaData rsetMetaData = rset.getMetaData();
+                                colCount = rsetMetaData.getColumnCount();
 				while (rset.next())
 				{
-                                        String[] row = new String[2];
-					name = rset.getString("name");
-                                        website = rset.getString("website");
-                                        row[0] = name;
-                                        row[1] = website;
+                                        String[] row = new String[colCount];
+                                        for(int i=1;i<=colCount;i++){
+                                            row[i-1] = rset.getString(i);
+                                        }
                                         output.add(row);
 				}
 
