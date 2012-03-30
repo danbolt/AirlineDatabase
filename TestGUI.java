@@ -145,21 +145,34 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 
 	private void fillTables()
 	{
-		String data[][] = new String[database.returnQuery("airline").get(0).length][database.returnQuery("airline").size()];
-		data = database.returnQuery("airline").toArray(data);
+		String data[][];
+
+		switch (currentState)
+		{
+			default:
+			case AIRLINE:
+			data = new String[database.returnQuery("airline").get(0).length][database.returnQuery("airline").size()];
+			data = database.returnQuery("airline").toArray(data);
+			break;
+			case LOCATION:
+                        data = new String[database.returnQuery("location").get(0).length][database.returnQuery("location").size()];
+			data = database.returnQuery("location").toArray(data);
+			break;
+		}
 
 		DefaultTableModel tm = (DefaultTableModel)table.getModel();
 		
 		switch (currentState)
 		{
+			default:
 			case AIRLINE:
-			tm.setColumnCount(2);
-			String airlineTitles[] = {"Airline", "Website"};
+			tm.setColumnCount(3);
+			String airlineTitles[] = {"Unique ID", "Airline", "Website"};
 			tm.setColumnIdentifiers(airlineTitles);
 			break;
 			case LOCATION:
 			tm.setColumnCount(1);
-			String locationTitles[] = {"Location Name"};
+			String locationTitles[] = {"Unique ID", "Location Name"};
 			tm.setColumnIdentifiers(locationTitles);
 			break;
 		}
@@ -188,7 +201,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		
 		textFieldList = new ArrayList<JFormattedTextField>();
 		
-		changeState(TableState.AIRLINE);
+		changeState(TableState.LOCATION);
 
 		rootPanel = new JPanel();
 
