@@ -66,6 +66,10 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
                         database.addToDatabase("location", locationCols, entryValuesString);
 			default:
 			break;
+			case FLIGHT:
+                        String[] flightCols = {"locationFrom", "locationTo", "planeModel"};
+                        database.addToDatabase("flight", flightCols, entryValuesString);
+			break;
 		}
 
 		reloadEntries();
@@ -79,7 +83,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		for (int i = 0; i < textFieldList.size(); i++)
                 {
 			JPanel pan = new JPanel();
-			
+
 			// determine the labels first by placement, then by state
 			switch (i)
 			{
@@ -92,14 +96,26 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				{
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Location Name"));
 				}
+				if (currentState == TableState.FLIGHT)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Location From"));
+				}
 				break;
 				case 1:
 				if (currentState == TableState.AIRLINE)
 				{
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Website"));
 				}
+				if (currentState == TableState.FLIGHT)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Location To"));
+				}
 				break;
 				case 2:
+				if (currentState == TableState.FLIGHT)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Plane Model"));
+				}
 				break;
 				case 3:
 				break;
@@ -138,6 +154,16 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				textFieldList.add(fld);
 			}
 			break;
+			case FLIGHT:
+			textFieldList.clear();
+			for (int i = 0; i < 3; i++)
+			{
+				JFormattedTextField fld = new JFormattedTextField();
+				fld.setText("TEST" + i);
+				fld.setColumns(10);
+				textFieldList.add(fld);
+			}
+			break;
 		}
 		
 		currentState = newState;
@@ -158,6 +184,10 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
                         data = new String[database.returnQuery("location").get(0).length][database.returnQuery("location").size()];
 			data = database.returnQuery("location").toArray(data);
 			break;
+			case FLIGHT:
+                        data = new String[database.returnQuery("flight").get(0).length][database.returnQuery("flight").size()];
+			data = database.returnQuery("flight").toArray(data);
+			break;
 		}
 
 		DefaultTableModel tm = (DefaultTableModel)table.getModel();
@@ -171,9 +201,14 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			tm.setColumnIdentifiers(airlineTitles);
 			break;
 			case LOCATION:
-			tm.setColumnCount(1);
+			tm.setColumnCount(2);
 			String locationTitles[] = {"Unique ID", "Location Name"};
 			tm.setColumnIdentifiers(locationTitles);
+			break;
+			case FLIGHT:
+			tm.setColumnCount(4);
+			String flightTitles[] = {"Unique ID", "Location From", "Location To", "Plane Model"};
+			tm.setColumnIdentifiers(flightTitles);
 			break;
 		}
 
@@ -201,7 +236,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		
 		textFieldList = new ArrayList<JFormattedTextField>();
 		
-		changeState(TableState.LOCATION);
+		changeState(TableState.FLIGHT);
 
 		rootPanel = new JPanel();
 
