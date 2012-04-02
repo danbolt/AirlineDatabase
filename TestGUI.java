@@ -56,8 +56,6 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 
 		private void maybeShowPopup (MouseEvent e)
 		{
-			System.out.println("Mouse Event");
-			
 			if (e.isPopupTrigger())
 			{
 				deletePopup.show(e.getComponent(), e.getX(), e.getY());
@@ -124,6 +122,16 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 
 		reloadEntries();
 		fillTables();
+	}
+	
+	private void removeEntry()
+	{
+		DefaultTableModel tModel = (DefaultTableModel)table.getModel();
+		
+		for (int i : table.getSelectedRows())
+		{
+			System.out.println(tModel.getValueAt(i, 0));
+		}
 	}
 	
 	private void reloadEntries()
@@ -364,6 +372,11 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		{
 			addEntry();
 		}
+		
+		if ("delete".equals(e.getActionCommand()))
+		{
+			removeEntry();
+		}
 	}
 	
 	@Override
@@ -400,8 +413,9 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
                 rootPanel.add(fieldsPanel);
                 
                 deletePopup = new JPopupMenu();
-                JMenuItem menuItem = new JMenuItem("Delete Row");
+                JMenuItem menuItem = new JMenuItem("Delete Selected Rows");
                 menuItem.addActionListener(this);
+                menuItem.setActionCommand("delete");
                 deletePopup.add(menuItem);
                 
                 MouseListener popupListener = new PopupListener();
