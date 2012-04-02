@@ -322,6 +322,32 @@ public class DatabaseAccess
 		{
 			try
 			{
+				// proper flight SQL query
+				// % SELECT a.flightNo, b.loc, c.loc, d.pname FROM flight a, (SELECT name as loc, location_ID as id from location) b, (SELECT name as loc, location_ID as id from location) c, (SELECT model as pname, plane_ID as id from planeModel) d WHERE a.locationFrom = b.id AND a.locationTo = c.id AND a.planeModel = d.id;
+				if (tableName.equals("flight"))
+				{
+					String statementString = "SELECT a.flightNo, b.loc, c.loc, d.pname FROM flight a, (SELECT name as loc, location_ID as id from location) b, (SELECT name as loc, location_ID as id from location) c, (SELECT model as pname, plane_ID as id from planeModel) d WHERE a.locationFrom = b.id AND a.locationTo = c.id AND a.planeModel = d.id;";
+
+					Statement testStatement = connect.createStatement();
+					ResultSet rset = testStatement.executeQuery(statementString);
+	                                
+	                                ResultSetMetaData rsetMetaData = rset.getMetaData();
+	                                colCount = rsetMetaData.getColumnCount();
+					while (rset.next())
+					{
+	                                        String[] row = new String[colCount];
+	                                        for(int i=1;i<=colCount;i++){
+	                                            row[i-1] = rset.getString(i);
+	                                        }
+	                                        output.add(row);
+					}
+	
+					testStatement.close();
+					
+					return output;
+				}
+
+
 				String statementString = "SELECT * FROM " + tableName;
 
 				Statement testStatement = connect.createStatement();
