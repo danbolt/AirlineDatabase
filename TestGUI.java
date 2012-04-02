@@ -40,6 +40,30 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			return name;
 		}
 	}
+	
+	private class PopupListener extends MouseAdapter
+	{
+		public void mousePressed (MouseEvent e)
+		{
+			maybeShowPopup(e);
+		}
+		
+		public void mouseReleased (MouseEvent e)
+		{
+			maybeShowPopup(e);
+		}
+
+
+		private void maybeShowPopup (MouseEvent e)
+		{
+			System.out.println("Mouse Event");
+			
+			if (e.isPopupTrigger())
+			{
+				deletePopup.show(e.getComponent(), e.getX(), e.getY());
+			}
+		}
+	}
 
 	public static DatabaseAccess database;
 
@@ -50,6 +74,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 
 	JTable table;
 	JScrollPane tableScrollPane;
+	JPopupMenu deletePopup;
 
 	ArrayList<JComponent> textFieldList;
 
@@ -79,7 +104,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		
 		String[] entryValuesString = new String[entryValues.size()];
 		entryValuesString = entryValues.toArray(entryValuesString);
-		
+
 		switch (currentState)
 		{
 			case AIRLINE:
@@ -189,7 +214,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			break;
 			case FLIGHT:
 
-			if (database.returnQuery("location").size() > 1)
+			if (database.returnQuery("location").size() > 0)
 			{
 				//get dropbox of Locations
 	                        data = new String[database.returnQuery("location").get(0).length][database.returnQuery("location").size()];
@@ -203,7 +228,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				locationArray = locationList.toArray(locationArray);
 			}
 			
-			if (database.returnQuery("location").size() > 1)
+			if (database.returnQuery("location").size() > 0)
 			{
 				//get dropbox of flights
 	                        data = new String[database.returnQuery("planeModel").size()][database.returnQuery("planeModel").get(0).length];
@@ -247,21 +272,21 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		{
 			default:
 			case AIRLINE:
-			if (database.returnQuery("airline").size() > 1)
+			if (database.returnQuery("airline").size() > 0)
 			{
 				data = new String[database.returnQuery("airline").get(0).length][database.returnQuery("airline").size()];
 				data = database.returnQuery("airline").toArray(data);
 			}
 			break;
 			case LOCATION:
-			if (database.returnQuery("location").size() > 1)
+			if (database.returnQuery("location").size() > 0)
 			{
 	                        data = new String[database.returnQuery("location").get(0).length][database.returnQuery("location").size()];
 				data = database.returnQuery("location").toArray(data);
 			}
 			break;
 			case FLIGHT:
-			if (database.returnQuery("flight").size() > 1)
+			if (database.returnQuery("flight").size() > 0)
 			{
 				data = new String[database.returnQuery("flight").get(0).length][database.returnQuery("flight").size()];
 				data = database.returnQuery("flight_str").toArray(data);
@@ -315,7 +340,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		
 		textFieldList = new ArrayList<JComponent>();
 		
-		changeState(TableState.FLIGHT);
+		changeState(TableState.LOCATION);
 
 		rootPanel = new JPanel();
 
@@ -374,6 +399,14 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
                 fieldsPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
                 rootPanel.add(fieldsPanel);
                 
+                deletePopup = new JPopupMenu();
+                JMenuItem menuItem = new JMenuItem("Delete Row");
+                menuItem.addActionListener(this);
+                deletePopup.add(menuItem);
+                
+                MouseListener popupListener = new PopupListener();
+                table.addMouseListener(popupListener);
+
                 reloadEntries();
 
 		// arrange the components inside the window
