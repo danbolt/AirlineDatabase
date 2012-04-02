@@ -160,6 +160,8 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 	private void changeState(TableState newState)
 	{
 		String data[][];
+		KeyNamePair modelArray[] = new KeyNamePair[0];
+		KeyNamePair locationArray[] = new KeyNamePair[0];
 
 		switch (newState)
 		{
@@ -187,28 +189,34 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			break;
 			case FLIGHT:
 
-			//get dropbox of Locations
-                        data = new String[database.returnQuery("location").get(0).length][database.returnQuery("location").size()];
-			data = database.returnQuery("location").toArray(data);
-			ArrayList<KeyNamePair> locationList = new ArrayList<KeyNamePair>();
-			for (int i = 0; i < data.length; i++)
+			if (database.returnQuery("location").size() > 1)
 			{
-				locationList.add(new KeyNamePair(Integer.parseInt(data[i][0]), data[i][1]));
+				//get dropbox of Locations
+	                        data = new String[database.returnQuery("location").get(0).length][database.returnQuery("location").size()];
+				data = database.returnQuery("location").toArray(data);
+				ArrayList<KeyNamePair> locationList = new ArrayList<KeyNamePair>();
+				for (int i = 0; i < data.length; i++)
+				{
+					locationList.add(new KeyNamePair(Integer.parseInt(data[i][0]), data[i][1]));
+				}
+				locationArray = new KeyNamePair[locationList.size()];
+				locationArray = locationList.toArray(locationArray);
 			}
-			KeyNamePair locationArray[] = new KeyNamePair[locationList.size()];
-			locationArray = locationList.toArray(locationArray);
 			
-			//get dropbox of flights
-                        data = new String[database.returnQuery("planeModel").size()][database.returnQuery("planeModel").get(0).length];
-			data = database.returnQuery("planeModel").toArray(data);
-			ArrayList<KeyNamePair> modelList = new ArrayList<KeyNamePair>();
-			for (int i = 0; i < data.length; i++)
+			if (database.returnQuery("location").size() > 1)
 			{
-				modelList.add(new KeyNamePair(Integer.parseInt(data[i][0]), data[i][1]));
+				//get dropbox of flights
+	                        data = new String[database.returnQuery("planeModel").size()][database.returnQuery("planeModel").get(0).length];
+				data = database.returnQuery("planeModel").toArray(data);
+				ArrayList<KeyNamePair> modelList = new ArrayList<KeyNamePair>();
+				for (int i = 0; i < data.length; i++)
+				{
+					modelList.add(new KeyNamePair(Integer.parseInt(data[i][0]), data[i][1]));
+				}
+				modelArray = new KeyNamePair[modelList.size()];
+				modelArray = modelList.toArray(modelArray);
 			}
-			KeyNamePair modelArray[] = new KeyNamePair[modelList.size()];
-			modelArray = modelList.toArray(modelArray);
-
+			
 			textFieldList.clear();
 			for (int i = 0; i < 3; i++)
 			{
@@ -233,22 +241,31 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 
 	private void fillTables()
 	{
-		String data[][];
+		String data[][] = new String[0][3];
 
 		switch (currentState)
 		{
 			default:
 			case AIRLINE:
-			data = new String[database.returnQuery("airline").get(0).length][database.returnQuery("airline").size()];
-			data = database.returnQuery("airline").toArray(data);
+			if (database.returnQuery("airline").size() > 1)
+			{
+				data = new String[database.returnQuery("airline").get(0).length][database.returnQuery("airline").size()];
+				data = database.returnQuery("airline").toArray(data);
+			}
 			break;
 			case LOCATION:
-                        data = new String[database.returnQuery("location").get(0).length][database.returnQuery("location").size()];
-			data = database.returnQuery("location").toArray(data);
+			if (database.returnQuery("location").size() > 1)
+			{
+	                        data = new String[database.returnQuery("location").get(0).length][database.returnQuery("location").size()];
+				data = database.returnQuery("location").toArray(data);
+			}
 			break;
 			case FLIGHT:
-                        data = new String[database.returnQuery("flight").get(0).length][database.returnQuery("flight").size()];
-			data = database.returnQuery("flight_str").toArray(data);
+			if (database.returnQuery("flight").size() > 1)
+			{
+				data = new String[database.returnQuery("flight").get(0).length][database.returnQuery("flight").size()];
+				data = database.returnQuery("flight_str").toArray(data);
+			}
 			break;
 		}
 
