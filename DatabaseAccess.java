@@ -285,6 +285,9 @@ public class DatabaseAccess
                 return output;
 	}
         
+        /*
+         * Given a passenger, print their baggage
+         */
         public int printBaggage(int passenger)
 	{               
                 int baggage = -1;
@@ -314,6 +317,9 @@ public class DatabaseAccess
                 return baggage;
 	}
         
+        /*
+         * Return table values, given a table name
+         */
         public ArrayList<String[]> returnQuery(String tableName)
 	{
                 ArrayList<String[]> output = new ArrayList<String[]>();
@@ -373,8 +379,11 @@ public class DatabaseAccess
 		}
                
                 return output;
-	} // void printAirlines
+	}
 	
+        /*
+         * Given table name, columns and values, add to the database
+         */
 	public void addToDatabase(String table, String[] columns, String[] values)
 	{
 		if (connect != null)
@@ -405,5 +414,32 @@ public class DatabaseAccess
 		}
                 
 	}
+        
+        /*
+         * Given a table, column identifier and key, remove from the database
+         */
+        public void removeFromDatabase(String table, String columnName, String key){
+            
+            if (connect != null)
+		{
+			try
+			{
+				String statementString = "DELETE FROM "+ table +" WHERE " +
+                                        columnName + "=" + key;
+                                System.out.println(statementString);
+				Statement insertStatement = connect.createStatement();
+                                insertStatement.executeUpdate(statementString);
+
+				insertStatement.close();
+			}
+			catch (Exception e)
+			{
+				System.out.println("Error with creating a statement.");
+				e.printStackTrace();
+			}
+		}
+                
+	            
+        }
 
 } // class DatabaseAccess
