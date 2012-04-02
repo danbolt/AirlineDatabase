@@ -103,7 +103,7 @@ CREATE TABLE FliesOn
 (
 	flight_ID INT,
 	passengerPassport INT,
-	baggage INT NOT NULL AUTO_INCREMENT,
+	baggage INT,
 	class_ID INT,
 	PRIMARY KEY(flight_ID,passengerPassport),
 	FOREIGN KEY(flight_ID) REFERENCES flight(flightNo) ON DELETE CASCADE,
@@ -119,4 +119,4 @@ CREATE TABLE OperatesFlights
     FOREIGN KEY(airline_ID) REFERENCES airline(airline_ID) ON DELETE CASCADE,
     FOREIGN KEY(flightNo) REFERENCES flight(flightNo) ON DELETE CASCADE
 );
--- relationships end here ---
+-- relationships end here ---   

@@ -328,32 +328,19 @@ public class DatabaseAccess
 		{
 			try
 			{
+                                String statementString;
 				// proper flight SQL query
-				if (tableName.equals("flight_str"))
-				{
-					String statementString = "SELECT a.flightNo, b.loc, c.loc, d.pname FROM flight a, (SELECT name as loc, location_ID as id from location) b, (SELECT name as loc, location_ID as id from location) c, (SELECT model as pname, plane_ID as id from planeModel) d WHERE a.locationFrom = b.id AND a.locationTo = c.id AND a.planeModel = d.id;";
-
-					Statement testStatement = connect.createStatement();
-					ResultSet rset = testStatement.executeQuery(statementString);
-	                                
-	                                ResultSetMetaData rsetMetaData = rset.getMetaData();
-	                                colCount = rsetMetaData.getColumnCount();
-					while (rset.next())
-					{
-	                                        String[] row = new String[colCount];
-	                                        for(int i=1;i<=colCount;i++){
-	                                            row[i-1] = rset.getString(i);
-	                                        }
-	                                        output.add(row);
-					}
-	
-					testStatement.close();
-					
-					return output;
-				}
-
-
-				String statementString = "SELECT * FROM " + tableName;
+				if (tableName.equals("flight_str")) {
+                                    statementString = "SELECT a.flightNo, b.loc, c.loc, d.pname FROM flight a, (SELECT name as loc, location_ID as id from location) b, (SELECT name as loc, location_ID as id from location) c, (SELECT model as pname, plane_ID as id from planeModel) d WHERE a.locationFrom = b.id AND a.locationTo = c.id AND a.planeModel = d.id;";
+                                } else if (tableName.equals("fliesOn_str")) {
+                                    statementString = "SELECT a.flight_ID, a.passengerPassport, a.baggage, b.className FROM fliesOn a,"
+                                            + "(SELECT classType AS className, class_ID FROM class) b WHERE a.class_ID = b.class_ID";
+                                } else if (tableName.equals("operatesFlights")) {
+                                    statementString = "SELECT a.airline, b.flightNo FROM operatesFlights B, (SELECT name AS airline, airline_ID"
+                                            + " FROM airline) A WHERE a.airline_ID = b.airline_ID";
+                                } else {
+                                    statementString = "SELECT * FROM " + tableName;                                    
+                                }
 
 				Statement testStatement = connect.createStatement();
 				ResultSet rset = testStatement.executeQuery(statementString);
