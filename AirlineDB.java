@@ -8,14 +8,10 @@ public class AirlineDB
 	public static void main(String args[])
 	{
                 DatabaseAccess db = new DatabaseAccess("test", "test", "jdbc:mysql://localhost/airlineDB");
+                db.openConnection();
                 TestGUI gui = new TestGUI(db);
-                
-                SwingUtilities.invokeLater(gui);
 
-		if(db.openConnection())
-		{
-			//
-		}
+                SwingUtilities.invokeLater(gui);
 	}
 
 } // class AirlineDB

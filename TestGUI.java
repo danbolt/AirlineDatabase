@@ -22,6 +22,24 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 	{
 		AIRLINE, FLIGHT, INCOMING, OUTGOING, ARRIVALS, DEPARTURES, PASSENGERS, CLASS, LOCATION, PLANEMODEL
 	}
+	
+	// this class is used for binding ID's with string values
+	private class KeyNamePair
+	{
+		public KeyNamePair(int newKey, String newName)
+		{
+			key = newKey;
+			name = newName;
+		}
+
+		public int key = 1;
+		public String name = "";
+		
+		public String toString()
+		{
+			return name;
+		}
+	}
 
 	public static DatabaseAccess database;
 
@@ -33,7 +51,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 	JTable table;
 	JScrollPane tableScrollPane;
 
-	ArrayList<JFormattedTextField> textFieldList;
+	ArrayList<JComponent> textFieldList;
 
 	public static boolean open = true;
 
@@ -43,13 +61,20 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 
 		for (int i = 0; i < textFieldList.size(); i++)
                 {
-			// if a field is empty, don't bother adding the content (for now)
-			if (textFieldList.get(i).getText().length() < 1)
+			if (textFieldList.get(i).getName().equals("field"))
 			{
-				return;
+				// if a field is empty, don't bother adding the content (for now)
+				if (((JFormattedTextField)textFieldList.get(i)).getText().length() < 1)
+				{
+					return;
+				}
+	
+				entryValues.add(((JFormattedTextField)textFieldList.get(i)).getText());
 			}
-
-			entryValues.add(textFieldList.get(i).getText());
+			else if (textFieldList.get(i).getName().equals("combo"))
+			{
+				entryValues.add( String.valueOf(((KeyNamePair)(((JComboBox)textFieldList.get(i)).getSelectedItem())).key) );
+			}
 		}
 		
 		String[] entryValuesString = new String[entryValues.size()];
@@ -91,6 +116,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				if (currentState == TableState.AIRLINE)
 				{
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Airline"));
+					((JFormattedTextField)textFieldList.get(i)).setText("");
 				}
 				if (currentState == TableState.LOCATION)
 				{
@@ -105,6 +131,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				if (currentState == TableState.AIRLINE)
 				{
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Website"));
+					((JFormattedTextField)textFieldList.get(i)).setText("");
 				}
 				if (currentState == TableState.FLIGHT)
 				{
@@ -122,7 +149,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				case 4:
 				break;
 			}
-			textFieldList.get(i).setText("");
+			//((JFormattedTextField)textFieldList.get(i)).setText("");
 			pan.add(textFieldList.get(i));
 			fieldsPanel.add(pan);
 		}
@@ -132,6 +159,8 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 	
 	private void changeState(TableState newState)
 	{
+		String data[][];
+
 		switch (newState)
 		{
 			case AIRLINE:
@@ -139,6 +168,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			for (int i = 0; i < 2; i++)
 			{
 				JFormattedTextField fld = new JFormattedTextField();
+				fld.setName("field");
 				fld.setText("TEST" + i);
 				fld.setColumns(10);
 				textFieldList.add(fld);
@@ -149,19 +179,51 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			for (int i = 0; i < 1; i++)
 			{
 				JFormattedTextField fld = new JFormattedTextField();
+				fld.setName("field");
 				fld.setText("TEST" + i);
 				fld.setColumns(10);
 				textFieldList.add(fld);
 			}
 			break;
 			case FLIGHT:
+
+			//get dropbox of Locations
+                        data = new String[database.returnQuery("location").get(0).length][database.returnQuery("location").size()];
+			data = database.returnQuery("location").toArray(data);
+			ArrayList<KeyNamePair> locationList = new ArrayList<KeyNamePair>();
+			for (int i = 0; i < data.length; i++)
+			{
+				locationList.add(new KeyNamePair(Integer.parseInt(data[i][0]), data[i][1]));
+			}
+			KeyNamePair locationArray[] = new KeyNamePair[locationList.size()];
+			locationArray = locationList.toArray(locationArray);
+			
+			//get dropbox of flights
+                        data = new String[database.returnQuery("planeModel").size()][database.returnQuery("planeModel").get(0).length];
+			data = database.returnQuery("planeModel").toArray(data);
+			ArrayList<KeyNamePair> modelList = new ArrayList<KeyNamePair>();
+			for (int i = 0; i < data.length; i++)
+			{
+				modelList.add(new KeyNamePair(Integer.parseInt(data[i][0]), data[i][1]));
+			}
+			KeyNamePair modelArray[] = new KeyNamePair[modelList.size()];
+			modelArray = modelList.toArray(modelArray);
+
 			textFieldList.clear();
 			for (int i = 0; i < 3; i++)
 			{
-				JFormattedTextField fld = new JFormattedTextField();
-				fld.setText("TEST" + i);
-				fld.setColumns(10);
-				textFieldList.add(fld);
+				if (i == 0 || i == 1)
+				{
+					JComboBox<KeyNamePair> combo = new JComboBox<KeyNamePair>(locationArray);
+					combo.setName("combo");
+					textFieldList.add(combo);
+				}
+				else
+				{
+					JComboBox<KeyNamePair> combo = new JComboBox<KeyNamePair>(modelArray);
+					combo.setName("combo");
+					textFieldList.add(combo);
+				}
 			}
 			break;
 		}
@@ -186,12 +248,12 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			break;
 			case FLIGHT:
                         data = new String[database.returnQuery("flight").get(0).length][database.returnQuery("flight").size()];
-			data = database.returnQuery("flight").toArray(data);
+			data = database.returnQuery("flight_str").toArray(data);
 			break;
 		}
 
 		DefaultTableModel tm = (DefaultTableModel)table.getModel();
-		
+
 		switch (currentState)
 		{
 			default:
@@ -234,7 +296,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		
 		database = newDB;
 		
-		textFieldList = new ArrayList<JFormattedTextField>();
+		textFieldList = new ArrayList<JComponent>();
 		
 		changeState(TableState.FLIGHT);
 

@@ -323,8 +323,7 @@ public class DatabaseAccess
 			try
 			{
 				// proper flight SQL query
-				// % SELECT a.flightNo, b.loc, c.loc, d.pname FROM flight a, (SELECT name as loc, location_ID as id from location) b, (SELECT name as loc, location_ID as id from location) c, (SELECT model as pname, plane_ID as id from planeModel) d WHERE a.locationFrom = b.id AND a.locationTo = c.id AND a.planeModel = d.id;
-				if (tableName.equals("flight"))
+				if (tableName.equals("flight_str"))
 				{
 					String statementString = "SELECT a.flightNo, b.loc, c.loc, d.pname FROM flight a, (SELECT name as loc, location_ID as id from location) b, (SELECT name as loc, location_ID as id from location) c, (SELECT model as pname, plane_ID as id from planeModel) d WHERE a.locationFrom = b.id AND a.locationTo = c.id AND a.planeModel = d.id;";
 
