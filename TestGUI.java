@@ -53,7 +53,6 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			maybeShowPopup(e);
 		}
 
-
 		private void maybeShowPopup (MouseEvent e)
 		{
 			if (e.isPopupTrigger())
@@ -73,6 +72,9 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 	JTable table;
 	JScrollPane tableScrollPane;
 	JPopupMenu deletePopup;
+	
+	JComboBox<String> stateSelector;
+	String possibleStates[] = {"Airline", "Flight", "Incoming", "Outgoing", "Arrivals", "Departures", "Passengers", "Class", "Location", "Plane Model"};
 
 	ArrayList<JComponent> textFieldList;
 
@@ -105,6 +107,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 
 		switch (currentState)
 		{
+
 			case AIRLINE:
 			String[] airlineCols = {"name", "website"};
 			database.addToDatabase("airline", airlineCols, entryValuesString);
@@ -123,17 +126,52 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		reloadEntries();
 		fillTables();
 	}
-	
+
 	private void removeEntry()
 	{
 		DefaultTableModel tModel = (DefaultTableModel)table.getModel();
 		
 		for (int i : table.getSelectedRows())
 		{
-			System.out.println(tModel.getValueAt(i, 0));
+			switch (currentState)
+			{
+				case LOCATION:
+				database.removeFromDatabase("location", "location_ID", (String)tModel.getValueAt(i, 0));
+				break;
+				case AIRLINE:
+				database.removeFromDatabase("airline", "airline_ID", (String)tModel.getValueAt(i, 0));
+				break;
+				case PLANEMODEL:
+				database.removeFromDatabase("planeModel", "plane_ID", (String)tModel.getValueAt(i, 0));
+				break;
+				case FLIGHT:
+				database.removeFromDatabase("flight", "flightNo", (String)tModel.getValueAt(i, 0));
+				break;
+				case INCOMING:
+				database.removeFromDatabase("incoming", "flightNo", (String)tModel.getValueAt(i, 0));
+				break;
+				case OUTGOING:
+				database.removeFromDatabase("outgoing", "flightNo", (String)tModel.getValueAt(i, 0));
+				break;
+				case ARRIVALS:
+				database.removeFromDatabase("arrivals", "arrival_ID", (String)tModel.getValueAt(i, 0));
+				break;
+				case DEPARTURES:
+				database.removeFromDatabase("departures", "departure_ID", (String)tModel.getValueAt(i, 0));
+				break;
+				case PASSENGERS:
+				database.removeFromDatabase("passengers", "passportNumber", (String)tModel.getValueAt(i, 0));
+				break;
+    				case CLASS:
+				database.removeFromDatabase("class", "class_ID", (String)tModel.getValueAt(i, 0));
+				break;
+			}
 		}
+
+		reloadEntries();
+		fillTables();
 	}
-	
+
 	private void reloadEntries()
 	{
 		fieldsPanel.removeAll();
@@ -221,7 +259,6 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			}
 			break;
 			case FLIGHT:
-
 			if (database.returnQuery("location").size() > 0)
 			{
 				//get dropbox of Locations
@@ -236,7 +273,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				locationArray = locationList.toArray(locationArray);
 			}
 			
-			if (database.returnQuery("location").size() > 0)
+			if (database.returnQuery("planeModel").size() > 0)
 			{
 				//get dropbox of flights
 	                        data = new String[database.returnQuery("planeModel").size()][database.returnQuery("planeModel").get(0).length];
@@ -367,15 +404,57 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		{
 			fillTables();
 		}
-		
-		if ("add".equals(e.getActionCommand()))
+		else if ("add".equals(e.getActionCommand()))
 		{
 			addEntry();
 		}
-		
-		if ("delete".equals(e.getActionCommand()))
+		else if ("delete".equals(e.getActionCommand()))
 		{
 			removeEntry();
+		}
+		else
+		{
+			JComboBox cb = (JComboBox)e.getSource();
+			String comboSelect = (String)cb.getSelectedItem();
+			
+			switch (comboSelect)
+			{
+				case "Airline":
+				changeState(TableState.AIRLINE);
+				break;
+				case "Flight":
+				changeState(TableState.FLIGHT);
+				break;
+				case "Incoming":
+				changeState(TableState.INCOMING);
+				break;
+				case "Outgoing":
+				changeState(TableState.OUTGOING);
+				break;
+				case "Arrivals":
+				changeState(TableState.ARRIVALS);
+				break;
+				case "Departures":
+				changeState(TableState.DEPARTURES);
+				break;
+				case "Passengers":
+				changeState(TableState.PASSENGERS);
+				break;
+				case "Class":
+				changeState(TableState.CLASS);
+				break;
+				case "Location":
+				changeState(TableState.LOCATION);
+				break;
+				case "Plane Model":
+				changeState(TableState.PLANEMODEL);
+				break;
+				default:
+				break;
+			}
+			
+			reloadEntries();
+			fillTables();
 		}
 	}
 	
@@ -411,7 +490,11 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
                 fieldsPanel.setPreferredSize(new Dimension(400,200));
                 fieldsPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
                 rootPanel.add(fieldsPanel);
-                
+
+                stateSelector = new JComboBox<String>(possibleStates);
+                stateSelector.addActionListener(this);
+                addPanel.add(stateSelector);
+
                 deletePopup = new JPopupMenu();
                 JMenuItem menuItem = new JMenuItem("Delete Selected Rows");
                 menuItem.addActionListener(this);
