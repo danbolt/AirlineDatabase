@@ -17,6 +17,11 @@ a.flight_ID = b.incomingPlane = c.outgoingPlane;
 SELECT PassengerPassport, COUNT(PassengerPassport) AS FlightsTaken
 FROM FliesOn
 GROUP BY PassengerPassport
-ORDER BY FlightsTaken DESC;
+ORDER BY FlightsTaken DESC
+LIMIT 3;
 
 -- Number 4 (not completed)
+SELECT a.airline_ID, b.locationFrom, b.locationTo
+FROM OperatesFlights a, flight B, departures C
+WHERE b.flightNo = c.outgoingPlane = a.flightNo AND
+c.departureStatus = "Delayed";
