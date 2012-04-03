@@ -5,6 +5,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 class WindowEventHandler extends WindowAdapter
 {
@@ -102,8 +104,11 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			}
 			else if (textFieldList.get(i).getName().equals("date"))
 			{
-				entryValues.add("2007-03-14 12:12:12");
-				//entryValues.add( String.valueOf(((KeyNamePair)(((JComboBox)textFieldList.get(i)).getSelectedItem())).key) );
+				Date eventDate = (Date)((JSpinner)textFieldList.get(i)).getValue();
+				
+				SimpleDateFormat dbDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+				entryValues.add(dbDateFormat.format(eventDate));
 			}
 		}
 		
@@ -133,6 +138,10 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			case INCOMING:
                         String[] incCols = {"flightNo", "plannedArrivalTime"};
                         database.addToDatabase("incoming", incCols, entryValuesString);
+			break;
+			case OUTGOING:
+                        String[] outCols = {"flightNo", "plannedDepartureTime"};
+                        database.addToDatabase("outgoing", outCols, entryValuesString);
 			break;
 		}
 
@@ -218,6 +227,10 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				{
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Flight"));
 				}
+				if (currentState == TableState.OUTGOING)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Flight"));
+				}
 				break;
 				case 1:
 				if (currentState == TableState.AIRLINE)
@@ -234,6 +247,10 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Capacity"));
 				}
 				if (currentState == TableState.INCOMING)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Time"));
+				}
+				if (currentState == TableState.OUTGOING)
 				{
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Time"));
 				}
@@ -309,7 +326,40 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				ArrayList<KeyNamePair> flightList = new ArrayList<KeyNamePair>();
 				for (int i = 0; i < data.length; i++)
 				{
-					flightList.add(new KeyNamePair(Integer.parseInt(data[i][0]), data[i][1]));
+					flightList.add(new KeyNamePair(Integer.parseInt(data[i][0]), data[i][1] + "-" + data[i][2]));
+				}
+				flightArray = new KeyNamePair[flightList.size()];
+				flightArray = flightList.toArray(flightArray);
+			}
+			textFieldList.clear();
+			for (int i = 0; i < 2; i++)
+			{
+				if (i == 0)
+				{
+					JComboBox<KeyNamePair> combo = new JComboBox<KeyNamePair>(flightArray);
+					combo.setName("combo");
+					textFieldList.add(combo);
+				}
+				else
+				{
+					SpinnerDateModel dateModel = new SpinnerDateModel();
+					JSpinner dateSpin = new JSpinner(dateModel);
+					dateSpin.setName("date");
+					textFieldList.add(dateSpin);
+				}
+			}
+			break;
+			case OUTGOING:
+			textFieldList.clear();
+			if (database.returnQuery("flight").size() > 0)
+			{
+				//get dropbox of Locations
+	                        data = new String[database.returnQuery("flight_str").size()][database.returnQuery("flight_str").get(0).length];
+				data = database.returnQuery("flight_str").toArray(data);
+				ArrayList<KeyNamePair> flightList = new ArrayList<KeyNamePair>();
+				for (int i = 0; i < data.length; i++)
+				{
+					flightList.add(new KeyNamePair(Integer.parseInt(data[i][0]), data[i][1] + "-" + data[i][2]));
 				}
 				flightArray = new KeyNamePair[flightList.size()];
 				flightArray = flightList.toArray(flightArray);
@@ -336,7 +386,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			if (database.returnQuery("location").size() > 0)
 			{
 				//get dropbox of Locations
-	                        data = new String[database.returnQuery("location").get(0).length][database.returnQuery("location").size()];
+	                        data = new String[database.returnQuery("location").size()][database.returnQuery("location").get(0).length];
 				data = database.returnQuery("location").toArray(data);
 				ArrayList<KeyNamePair> locationList = new ArrayList<KeyNamePair>();
 				for (int i = 0; i < data.length; i++)
@@ -393,36 +443,43 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			case AIRLINE:
 			if (database.returnQuery("airline").size() > 0)
 			{
-				data = new String[database.returnQuery("airline").get(0).length][database.returnQuery("airline").size()];
+				data = new String[database.returnQuery("airline").size()][database.returnQuery("airline").get(0).length];
 				data = database.returnQuery("airline").toArray(data);
 			}
 			break;
 			case LOCATION:
 			if (database.returnQuery("location").size() > 0)
 			{
-	                        data = new String[database.returnQuery("location").get(0).length][database.returnQuery("location").size()];
+	                        data = new String[database.returnQuery("location").size()][database.returnQuery("location").get(0).length];
 				data = database.returnQuery("location").toArray(data);
 			}
 			break;
 			case FLIGHT:
 			if (database.returnQuery("flight").size() > 0)
 			{
-				data = new String[database.returnQuery("flight").get(0).length][database.returnQuery("flight").size()];
+				data = new String[database.returnQuery("flight").size()][database.returnQuery("flight").get(0).length];
 				data = database.returnQuery("flight_str").toArray(data);
 			}
 			break;
 			case PLANEMODEL:
 			if (database.returnQuery("planeModel").size() > 0)
 			{
-				data = new String[database.returnQuery("planeModel").get(0).length][database.returnQuery("planeModel").size()];
+				data = new String[database.returnQuery("planeModel").size()][database.returnQuery("planeModel").get(0).length];
 				data = database.returnQuery("planeModel").toArray(data);
 			}
 			break;
 			case INCOMING:
 			if (database.returnQuery("incoming_str").size() > 0)
 			{
-				data = new String[database.returnQuery("incoming_str").get(0).length][database.returnQuery("incoming_str").size()];
+				data = new String[database.returnQuery("incoming_str").size()][database.returnQuery("incoming_str").get(0).length];
 				data = database.returnQuery("incoming_str").toArray(data);
+			}
+			break;
+			case OUTGOING:
+			if (database.returnQuery("outgoing_str").size() > 0)
+			{
+				data = new String[database.returnQuery("outgoing_str").size()][database.returnQuery("outgoing_str").get(0).length];
+				data = database.returnQuery("outgoing_str").toArray(data);
 			}
 			break;
 		}
@@ -444,7 +501,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			break;
 			case FLIGHT:
 			tm.setColumnCount(4);
-			String flightTitles[] = {"Unique ID", "Location From", "Location To", "Plane Model"};
+			String flightTitles[] = {"Flight Number", "Location From", "Location To", "Plane Model"};
 			tm.setColumnIdentifiers(flightTitles);
 			break;
 			case PLANEMODEL:
@@ -454,8 +511,13 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			break;
 			case INCOMING:
 			tm.setColumnCount(3);
-			String incomingTitles[] = {"Unique ID", "Date/Time", "From", "To"};
+			String incomingTitles[] = {"Flight Number", "Date/Time", "From", "To"};
 			tm.setColumnIdentifiers(incomingTitles);
+			break;
+			case OUTGOING:
+			tm.setColumnCount(3);
+			String outgoingTitles[] = {"Flight Number", "Date/Time", "From", "To"};
+			tm.setColumnIdentifiers(outgoingTitles);
 			break;
 		}
 
