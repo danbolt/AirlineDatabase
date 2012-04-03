@@ -851,8 +851,9 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				default:
 				break;
 			}
-			
+
 			reloadEntries();
+			fieldsPanel.repaint();
 			fillTables();
 		}
 	}
