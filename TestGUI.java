@@ -102,7 +102,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			}
 			else if (textFieldList.get(i).getName().equals("date"))
 			{
-				entryValues.add("0000-00-00 00:00:00");
+				entryValues.add("2007-03-14 12:12:12");
 				//entryValues.add( String.valueOf(((KeyNamePair)(((JComboBox)textFieldList.get(i)).getSelectedItem())).key) );
 			}
 		}
@@ -132,7 +132,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			break;
 			case INCOMING:
                         String[] incCols = {"flightNo", "plannedArrivalTime"};
-                        database.addToDatabase("planeModel", incCols, entryValuesString);
+                        database.addToDatabase("incoming", incCols, entryValuesString);
 			break;
 		}
 
@@ -304,13 +304,12 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			if (database.returnQuery("flight").size() > 0)
 			{
 				//get dropbox of Locations
-	                        data = new String[database.returnQuery("flight").get(0).length][database.returnQuery("flight").size()];
+	                        data = new String[database.returnQuery("flight_str").size()][database.returnQuery("flight_str").get(0).length];
 				data = database.returnQuery("flight_str").toArray(data);
 				ArrayList<KeyNamePair> flightList = new ArrayList<KeyNamePair>();
 				for (int i = 0; i < data.length; i++)
 				{
-
-					flightList.add(new KeyNamePair(Integer.parseInt(data[i][0]), data[i][1] + "-" + data[i][2]));
+					flightList.add(new KeyNamePair(Integer.parseInt(data[i][0]), data[i][1]));
 				}
 				flightArray = new KeyNamePair[flightList.size()];
 				flightArray = flightList.toArray(flightArray);
@@ -420,10 +419,10 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			}
 			break;
 			case INCOMING:
-			if (database.returnQuery("incoming").size() > 0)
+			if (database.returnQuery("incoming_str").size() > 0)
 			{
-				data = new String[database.returnQuery("incoming").get(0).length][database.returnQuery("incoming").size()];
-				data = database.returnQuery("incoming").toArray(data);
+				data = new String[database.returnQuery("incoming_str").get(0).length][database.returnQuery("incoming_str").size()];
+				data = database.returnQuery("incoming_str").toArray(data);
 			}
 			break;
 		}
