@@ -137,15 +137,16 @@ public class DatabaseAccess
 		{
 			try
 			{
-				String statementString = "SELECT b.flightNo FROM location a, flight b WHERE (b.locationTo = a.location_ID OR b.locationFrom = a.location_I) AND a.name =\"" + locationName + "\"";
+				String statementString = "SELECT b.flightNo FROM location a, flight b WHERE (b.locationTo = a.location_ID OR b.locationFrom = a.location_ID) AND a.name =\"" + locationName + "\"";
 
 				Statement testStatement = connect.createStatement();
 				ResultSet rset = testStatement.executeQuery(statementString);
 				
 				while (rset.next())
 				{
-                                    String row[] = new String[0];
+                                    String row[] = new String[1];
                                     row[0] = rset.getString("flightNo");
+                                    output.add(row);
 				}
 
 				testStatement.close();

@@ -78,7 +78,8 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 	JPopupMenu deletePopup;
 	
 	JFormattedTextField airlineNameField;
-	
+	JFormattedTextField locNameField;
+
 	JComboBox<String> stateSelector;
 	String possibleStates[] = {"Airline", "Flight", "Incoming", "Outgoing", "Arrivals", "Departures", "Passengers", "Class", "Location", "Plane Model", "Flies On", "Operates Flights"};
 
@@ -974,6 +975,42 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		{
 			addEntry();
 		}
+		else if ("flightsByLoc".equals(e.getActionCommand()))
+		{
+			String location = locNameField.getText();
+
+			currentState = TableState.printFlightsToFrom;
+
+			textFieldList.clear();
+			fieldsPanel.removeAll();
+			fieldsPanel.repaint();
+
+			String data[][] = new String[0][1];
+
+			if (database.printFlightsToFrom(location).size() > 0)
+			{
+				data = new String[database.printFlightsToFrom(location).size()][1];
+				data = database.printFlightsToFrom(location).toArray(data);
+			}
+			
+			DefaultTableModel tm = (DefaultTableModel)table.getModel();
+			tm.setColumnCount(1);
+			String airlineTitles[] = {"Flight Number"};
+			tm.setColumnIdentifiers(airlineTitles);
+
+			//empty the table's rows and refill them with the pulled DB data
+			while (tm.getRowCount() > 0)
+			{
+				tm.removeRow(0);
+			}
+			for (int i = 0; i < data.length; i++)
+			{
+				tm.addRow(data[i]);
+			}
+			
+			tm.fireTableDataChanged();
+
+		}
 		else if ("flightsByLine".equals(e.getActionCommand()))
 		{
 			String airline = airlineNameField.getText();
@@ -1104,7 +1141,21 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
                 stateSelector.addActionListener(this);
                 addPanel.add(stateSelector);
                 
-                JPanel airFlightsPanel = new JPanel();
+
+                
+                JPanel locFlightsPanel = new JPanel();
+                locFlightsPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+                jb = new JButton("Display Flights by Location");
+                jb.setActionCommand("flightsByLoc");
+                jb.addActionListener(this);
+                locNameField = new JFormattedTextField();
+		locNameField.setText("");
+		locNameField.setColumns(10);
+                locFlightsPanel.add(locNameField);
+                locFlightsPanel.add(jb);
+                addPanel.add(locFlightsPanel);
+		
+		JPanel airFlightsPanel = new JPanel();
                 airFlightsPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
                 jb = new JButton("Display Flights by Airline");
                 jb.setActionCommand("flightsByLine");
