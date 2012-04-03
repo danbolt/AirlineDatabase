@@ -77,6 +77,8 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 	JScrollPane tableScrollPane;
 	JPopupMenu deletePopup;
 	
+	JFormattedTextField airlineNameField;
+	
 	JComboBox<String> stateSelector;
 	String possibleStates[] = {"Airline", "Flight", "Incoming", "Outgoing", "Arrivals", "Departures", "Passengers", "Class", "Location", "Plane Model", "Flies On", "Operates Flights"};
 
@@ -972,6 +974,26 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		{
 			addEntry();
 		}
+		else if ("flightsByLine".equals(e.getActionCommand()))
+		{
+			String airline = airlineNameField.getText();
+			
+			currentState = TableState.printAirlineFlights;
+
+			textFieldList.clear();
+			fieldsPanel.removeAll();
+			fieldsPanel.repaint();
+			
+			String data[][] = new String[0][3];
+
+			if (database.returnQuery("airline").size() > 0)
+			{
+				data = new String[database.returnQuery("airline").size()][database.returnQuery("airline").get(0).length];
+				data = database.returnQuery("airline").toArray(data);
+			}
+			
+			// FINITO
+		}
 		else if ("delete".equals(e.getActionCommand()))
 		{
 			removeEntry();
@@ -1056,7 +1078,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		jb.setActionCommand("add");
 		jb.addActionListener(this);
                 addPanel.add(jb);
-                
+
                 fieldsPanel = new JPanel();
                 fieldsPanel.setPreferredSize(new Dimension(400,200));
                 fieldsPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
@@ -1065,6 +1087,18 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
                 stateSelector = new JComboBox<String>(possibleStates);
                 stateSelector.addActionListener(this);
                 addPanel.add(stateSelector);
+                
+                JPanel airFlightsPanel = new JPanel();
+                airFlightsPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+                jb = new JButton("Display Flights by Airline");
+                jb.setActionCommand("flightsByLine");
+                jb.addActionListener(this);
+                airlineNameField = new JFormattedTextField();
+		airlineNameField.setText("");
+		airlineNameField.setColumns(10);
+                airFlightsPanel.add(airlineNameField);
+                airFlightsPanel.add(jb);
+                addPanel.add(airFlightsPanel);
 
                 deletePopup = new JPopupMenu();
                 JMenuItem menuItem = new JMenuItem("Delete Selected Rows");
