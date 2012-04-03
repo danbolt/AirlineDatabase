@@ -79,6 +79,8 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 	
 	JFormattedTextField airlineNameField;
 	JFormattedTextField locNameField;
+	JFormattedTextField passField;
+	JFormattedTextField flightField;
 	JSpinner timeDaySpin;
 
 	JComboBox<String> stateSelector;
@@ -1048,6 +1050,78 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			tm.fireTableDataChanged();
 
 		}
+		else if ("passByFlight".equals(e.getActionCommand()))
+		{
+			String airline = flightField.getText();
+
+			currentState = TableState.printArrivalPassengers;
+
+			textFieldList.clear();
+			fieldsPanel.removeAll();
+			fieldsPanel.repaint();
+			
+			String data[][] = new String[0][5];
+
+			if (database.printArrivalPassengers(airline).size() > 0)
+			{
+				data = new String[database.printArrivalPassengers(airline).size()][database.printArrivalPassengers(airline).get(0).length];
+				data = database.printArrivalPassengers(airline).toArray(data);
+			}
+			
+			DefaultTableModel tm = (DefaultTableModel)table.getModel();
+			tm.setColumnCount(5);
+			String airlineTitles[] = {"Passport Number", "Name", "Date of Birth", "Place of Birth", "Citizenship"};
+			tm.setColumnIdentifiers(airlineTitles);
+
+			//empty the table's rows and refill them with the pulled DB data
+			while (tm.getRowCount() > 0)
+			{
+				tm.removeRow(0);
+			}
+			for (int i = 0; i < data.length; i++)
+			{
+				tm.addRow(data[i]);
+			}
+			
+			tm.fireTableDataChanged();
+
+		}
+		else if ("baggageByPass".equals(e.getActionCommand()))
+		{
+			String airline = passField.getText();
+
+			currentState = TableState.printBaggage;
+
+			textFieldList.clear();
+			fieldsPanel.removeAll();
+			fieldsPanel.repaint();
+			
+			String data[][] = new String[0][1];
+
+			if (database.printBaggage(airline).size() > 0)
+			{
+				data = new String[database.printBaggage(airline).size()][database.printBaggage(airline).get(0).length];
+				data = database.printBaggage(airline).toArray(data);
+			}
+			
+			DefaultTableModel tm = (DefaultTableModel)table.getModel();
+			tm.setColumnCount(1);
+			String airlineTitles[] = {"Baggage"};
+			tm.setColumnIdentifiers(airlineTitles);
+
+			//empty the table's rows and refill them with the pulled DB data
+			while (tm.getRowCount() > 0)
+			{
+				tm.removeRow(0);
+			}
+			for (int i = 0; i < data.length; i++)
+			{
+				tm.addRow(data[i]);
+			}
+			
+			tm.fireTableDataChanged();
+
+		}
 		else if ("flightsByTime".equals(e.getActionCommand()))
 		{
 			Date eventDate = (Date)(timeDaySpin.getValue());
@@ -1216,6 +1290,30 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		timeDayPanel.add(timeDaySpin);
                 timeDayPanel.add(jb);
                 addPanel.add(timeDayPanel);
+                
+		JPanel flightFieldPanel = new JPanel();
+                flightFieldPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+                jb = new JButton("Display passengers by flight");
+                jb.setActionCommand("passByFlight");
+                jb.addActionListener(this);
+                flightField = new JFormattedTextField();
+		flightField.setText("");
+		flightField.setColumns(10);
+                flightFieldPanel.add(flightField);
+                flightFieldPanel.add(jb);
+                addPanel.add(flightFieldPanel);
+                
+                JPanel baggagePanel = new JPanel();
+                baggagePanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+                jb = new JButton("Display baggage from Passport ID");
+                jb.setActionCommand("baggageByPass");
+                jb.addActionListener(this);
+                passField = new JFormattedTextField();
+		passField.setText("");
+		passField.setColumns(10);
+                baggagePanel.add(passField);
+                baggagePanel.add(jb);
+                addPanel.add(baggagePanel);
 
                 deletePopup = new JPopupMenu();
                 JMenuItem menuItem = new JMenuItem("Delete Selected Rows");
