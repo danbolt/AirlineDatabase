@@ -137,29 +137,15 @@ public class DatabaseAccess
 		{
 			try
 			{
-				String statementString = "SELECT * FROM location";
+				String statementString = "SELECT b.flightNo FROM location a, flight b WHERE (b.locationTo = a.location_ID OR b.locationFrom = a.location_I) AND a.name =\"" + locationName + "\"";
 
 				Statement testStatement = connect.createStatement();
 				ResultSet rset = testStatement.executeQuery(statementString);
 				
 				while (rset.next())
 				{
-					String s = rset.getString("name");
-					if(s.equalsIgnoreCase(locationName)) {
-                                            locationID = rset.getInt("location_ID");
-                                            String queryString = "SELECT * FROM flight WHERE locationTo = " + locationID + " OR locationFrom = "+ locationID;
-                                            Statement queryStatement = connect.createStatement();
-                                            ResultSet results = queryStatement.executeQuery(queryString);
-                                            while(results.next()){
-                                                String[] row = new String[3];
-                                                row[0] = results.getString("flightNo");
-                                                row[1] = results.getString("locationTo");
-                                                row[2] = results.getString("locationFrom");
-                                                output.add(row);
-                                            }
-                                            queryStatement.close();
-                                            break;
-                                        }
+                                    String row[] = new String[0];
+                                    row[0] = rset.getString("flightNo");
 				}
 
 				testStatement.close();
