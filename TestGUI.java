@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.Date;
 import java.text.SimpleDateFormat;
+import javax.swing.text.NumberFormatter;
 
 class WindowEventHandler extends WindowAdapter
 {
@@ -80,6 +81,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 
 	String arrivalStatuses[] = {"Arrived", "Delayed", "Cancelled", "On Time"};
 	String departureStatuses[] = {"Departed", "Delayed", "Cancelled"};
+	String classStatuses[] ={"FIRST CLASS", "ECONOMY", "HANDICAPPED"};
 
 	ArrayList<JComponent> textFieldList;
 
@@ -156,6 +158,14 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			case DEPARTURES:
                         String[] departCols = {"outgoingPlane", "gate", "departureDate", "departureStatus"};
                         database.addToDatabase("departures", departCols, entryValuesString);
+			break;
+			case PASSENGERS:
+                        String[] passengerCols = {"passportNumber","name", "dateOfBirth", "placeOfBirth", "citizenship"};
+                        database.addToDatabase("passengers", passengerCols, entryValuesString);
+			break;
+			case CLASS:
+                        String[] classCols = {"classType"};
+                        database.addToDatabase("class", classCols, entryValuesString);
 			break;
 		}
 
@@ -253,6 +263,14 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				{
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Flight Number"));
 				}
+				if (currentState == TableState.PASSENGERS)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Passport Number"));
+				}
+				if (currentState == TableState.CLASS)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Class Type"));
+				}
 				break;
 				case 1:
 				if (currentState == TableState.AIRLINE)
@@ -284,6 +302,10 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				{
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Gate"));
 				}
+				if (currentState == TableState.PASSENGERS)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Name"));
+				}
 				break;
 				case 2:
 				if (currentState == TableState.FLIGHT)
@@ -298,6 +320,10 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				{
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Departure Date"));
 				}
+				if (currentState == TableState.PASSENGERS)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Date of Birth"));
+				}
 				break;
 				case 3:
 				if (currentState == TableState.ARRIVALS)
@@ -308,8 +334,16 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				{
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Status"));
 				}
+				if (currentState == TableState.PASSENGERS)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Place of Birth"));
+				}
 				break;
 				case 4:
+				if (currentState == TableState.PASSENGERS)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Citizenship"));
+				}
 				break;
 			}
 			//((JFormattedTextField)textFieldList.get(i)).setText("");
@@ -547,6 +581,44 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				textFieldList.add(combo2);
 			}
 			break;
+			case PASSENGERS:
+			textFieldList.clear();
+			for (int i = 0; i < 5; i++)
+			{
+				if (i == 0)
+				{
+					JFormattedTextField fld = new JFormattedTextField();
+					fld.setName("field");
+					fld.setText("");
+					fld.setColumns(10);
+					textFieldList.add(fld);
+				}
+				else if (i == 2)
+				{
+		                        SpinnerDateModel dateModel = new SpinnerDateModel();
+					JSpinner dateSpin = new JSpinner(dateModel);
+					dateSpin.setName("date");
+					textFieldList.add(dateSpin);
+				}
+				else
+				{
+					JFormattedTextField fld = new JFormattedTextField();
+					fld.setName("field");
+					fld.setText("");
+					fld.setColumns(10);
+					textFieldList.add(fld);
+				}
+			}
+			break;
+			
+			case CLASS:
+                        textFieldList.clear();
+                        {
+				JComboBox<String> combo2 = new JComboBox<String>(classStatuses);
+				combo2.setName("statusCombo");
+				textFieldList.add(combo2);
+			}
+			break;
 		}
 		
 		currentState = newState;
@@ -615,6 +687,20 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				data = database.returnQuery("departures").toArray(data);
 			}
 			break;
+			case PASSENGERS:
+			if (database.returnQuery("passengers").size() > 0)
+			{
+				data = new String[database.returnQuery("passengers").size()][database.returnQuery("passengers").get(0).length];
+				data = database.returnQuery("passengers").toArray(data);
+			}
+			break;
+			case CLASS:
+			if (database.returnQuery("class").size() > 0)
+			{
+				data = new String[database.returnQuery("class").size()][database.returnQuery("class").get(0).length];
+				data = database.returnQuery("class").toArray(data);
+			}
+			break;
 		}
 
 		DefaultTableModel tm = (DefaultTableModel)table.getModel();
@@ -661,6 +747,16 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			tm.setColumnCount(4);
 			String departureTitles[] = {"Departure Number", "Flight Number", "Gate", "Departure Date"};
 			tm.setColumnIdentifiers(departureTitles);
+			break;
+			case PASSENGERS:
+			tm.setColumnCount(5);
+			String passengerTitles[] = {"Passport Number", "Name", "Date of Birth", "Place of Birth", "Citizenship"};
+			tm.setColumnIdentifiers(passengerTitles);
+			break;
+			case CLASS:
+			tm.setColumnCount(2);
+			String classTitles[] = {"Class ID", "Type"};
+			tm.setColumnIdentifiers(classTitles);
 			break;
 		}
 
@@ -764,7 +860,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 	@Override
 	public void run()
 	{
-		rootPanel.setPreferredSize(new Dimension(500,500));
+		rootPanel.setPreferredSize(new Dimension(640,640));
 
 		add(rootPanel);
 		this.setResizable(false);
