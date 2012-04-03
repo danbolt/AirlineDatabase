@@ -153,6 +153,10 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
                         String[] arrivCols = {"incomingPlane", "gate", "arrivalDate", "arrivalStatus"};
                         database.addToDatabase("arrivals", arrivCols, entryValuesString);
 			break;
+			case DEPARTURES:
+                        String[] departCols = {"outgoingPlane", "gate", "departureDate", "departureStatus"};
+                        database.addToDatabase("departures", departCols, entryValuesString);
+			break;
 		}
 
 		reloadEntries();
@@ -243,7 +247,11 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				}
 				if (currentState == TableState.ARRIVALS)
 				{
-					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Flight"));
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Flight Number"));
+				}
+				if (currentState == TableState.DEPARTURES)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Flight Number"));
 				}
 				break;
 				case 1:
@@ -272,6 +280,10 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				{
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Gate"));
 				}
+				if (currentState == TableState.DEPARTURES)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Gate"));
+				}
 				break;
 				case 2:
 				if (currentState == TableState.FLIGHT)
@@ -282,9 +294,17 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				{
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Arrival Date"));
 				}
+				if (currentState == TableState.DEPARTURES)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Departure Date"));
+				}
 				break;
 				case 3:
 				if (currentState == TableState.ARRIVALS)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Status"));
+				}
+				if (currentState == TableState.DEPARTURES)
 				{
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Status"));
 				}
@@ -455,7 +475,6 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			}
 			break;
 			case ARRIVALS:
-			
 			textFieldList.clear();
 			if (database.returnQuery("incoming").size() > 0)
 			{
@@ -470,24 +489,63 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				flightArray = new KeyNamePair[flightList.size()];
 				flightArray = flightList.toArray(flightArray);
 			}
-			JComboBox<KeyNamePair> combo = new JComboBox<KeyNamePair>(flightArray);
-			combo.setName("combo");
-			textFieldList.add(combo);
+			{
+				JComboBox<KeyNamePair> combo = new JComboBox<KeyNamePair>(flightArray);
+				combo.setName("combo");
+				textFieldList.add(combo);
+	
+	                        JFormattedTextField fld = new JFormattedTextField();
+				fld.setName("field");
+				fld.setText("");
+				fld.setColumns(10);
+				textFieldList.add(fld);
+				
+	                        SpinnerDateModel dateModel = new SpinnerDateModel();
+				JSpinner dateSpin = new JSpinner(dateModel);
+				dateSpin.setName("date");
+				textFieldList.add(dateSpin);
+				
+				JComboBox<String> combo2 = new JComboBox<String>(arrivalStatuses);
+				combo2.setName("statusCombo");
+				textFieldList.add(combo2);
+			}
+			break;
 
-                        JFormattedTextField fld = new JFormattedTextField();
-			fld.setName("field");
-			fld.setText("");
-			fld.setColumns(10);
-			textFieldList.add(fld);
-			
-                        SpinnerDateModel dateModel = new SpinnerDateModel();
-			JSpinner dateSpin = new JSpinner(dateModel);
-			dateSpin.setName("date");
-			textFieldList.add(dateSpin);
-			
-			JComboBox<String> combo2 = new JComboBox<String>(arrivalStatuses);
-			combo2.setName("statusCombo");
-			textFieldList.add(combo2);
+			case DEPARTURES:
+			textFieldList.clear();
+			if (database.returnQuery("outgoing").size() > 0)
+			{
+				//get dropbox of Locations
+	                        data = new String[database.returnQuery("outgoing").size()][database.returnQuery("outgoing").get(0).length];
+				data = database.returnQuery("outgoing").toArray(data);
+				ArrayList<KeyNamePair> flightList = new ArrayList<KeyNamePair>();
+				for (int i = 0; i < data.length; i++)
+				{
+					flightList.add(new KeyNamePair(Integer.parseInt(data[i][0]), data[i][0]));
+				}
+				flightArray = new KeyNamePair[flightList.size()];
+				flightArray = flightList.toArray(flightArray);
+			}
+			{
+				JComboBox<KeyNamePair> combo = new JComboBox<KeyNamePair>(flightArray);
+				combo.setName("combo");
+				textFieldList.add(combo);
+	
+	                        JFormattedTextField fld = new JFormattedTextField();
+				fld.setName("field");
+				fld.setText("");
+				fld.setColumns(10);
+				textFieldList.add(fld);
+				
+	                        SpinnerDateModel dateModel = new SpinnerDateModel();
+				JSpinner dateSpin = new JSpinner(dateModel);
+				dateSpin.setName("date");
+				textFieldList.add(dateSpin);
+				
+				JComboBox<String> combo2 = new JComboBox<String>(departureStatuses);
+				combo2.setName("statusCombo");
+				textFieldList.add(combo2);
+			}
 			break;
 		}
 		
@@ -550,6 +608,13 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				data = database.returnQuery("arrivals").toArray(data);
 			}
 			break;
+			case DEPARTURES:
+			if (database.returnQuery("departures").size() > 0)
+			{
+				data = new String[database.returnQuery("departures").size()][database.returnQuery("departures").get(0).length];
+				data = database.returnQuery("departures").toArray(data);
+			}
+			break;
 		}
 
 		DefaultTableModel tm = (DefaultTableModel)table.getModel();
@@ -591,6 +656,11 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			tm.setColumnCount(4);
 			String arrivalTitles[] = {"Arrival Number", "Flight Number", "Gate", "Arrival Date"};
 			tm.setColumnIdentifiers(arrivalTitles);
+			break;
+			case DEPARTURES:
+			tm.setColumnCount(4);
+			String departureTitles[] = {"Departure Number", "Flight Number", "Gate", "Departure Date"};
+			tm.setColumnIdentifiers(departureTitles);
 			break;
 		}
 
