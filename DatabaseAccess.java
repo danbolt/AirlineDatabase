@@ -90,11 +90,11 @@ public class DatabaseAccess
         /*
          * Given an airline name, prints a list of flight numbers that airline operates
          */
-        public ArrayList<Integer> printAirlineFlights(String airlineName)
+        public ArrayList<String[]> printAirlineFlights(String airlineName)
 	{
             
                 int airlineID;
-                ArrayList<Integer> flightNo = new ArrayList<Integer>();
+                ArrayList<String[]> output = new ArrayList<String[]>();
 		if (connect != null)
 		{
 			try
@@ -113,12 +113,21 @@ public class DatabaseAccess
                                             Statement queryStatement = connect.createStatement();
                                             ResultSet results = queryStatement.executeQuery(queryString);
                                             while(results.next()){
-                                                flightNo.add(results.getInt("flightNo"));
+                                                String[] row = new String[3];
+                                                row[0] = results.getString("flightNo");
+                                                String locationString = "SELECT a.flightNo, b.loc, c.loc2, d.pname FROM flight a, (SELECT name as loc, location_ID as id from location) b, (SELECT name as loc2, location_ID as id from location) c, (SELECT model as pname, plane_ID as id from planeModel) d WHERE a.locationFrom = b.id AND a.locationTo = c.id AND a.planeModel = d.id AND a.flightNo =" + row[0];
+                                                Statement locationStatement = connect.createStatement();
+                                                ResultSet locationResults = locationStatement.executeQuery(locationString);
+                                                row[1] = locationResults.getString("loc");
+                                                row[2] = locationResults.getString("loc2");
+                                                output.add(row);
+                                                locationStatement.close();
                                             }
+                                            queryStatement.close();
                                             break;
                                         }
 				}
-
+                                
 				testStatement.close();
 			}
 			catch (Exception e)
@@ -127,17 +136,17 @@ public class DatabaseAccess
 				e.printStackTrace();
 			}
 		}
-                return flightNo;
+                return output;
 	} 
 
         /*
          * Given a location, print all flight numbers to or from that location
          */
-        public ArrayList<Integer> printFlightsToFrom(String locationName)
+        public ArrayList<String[]> printFlightsToFrom(String locationName)
 	{
             
                 int locationID;
-                ArrayList<Integer> flightNo = new ArrayList<Integer>();
+                ArrayList<String[]> output = new ArrayList<String[]>();
 		if (connect != null)
 		{
 			try
@@ -156,7 +165,11 @@ public class DatabaseAccess
                                             Statement queryStatement = connect.createStatement();
                                             ResultSet results = queryStatement.executeQuery(queryString);
                                             while(results.next()){
-                                                flightNo.add(results.getInt("flightNo"));
+                                                String[] row = new String[3];
+                                                row[0] = results.getString("flightNo");
+                                                row[1] = results.getString("locationTo");
+                                                row[2] = results.getString("locationFrom");
+                                                output.add(row);
                                             }
                                             queryStatement.close();
                                             break;
@@ -171,7 +184,7 @@ public class DatabaseAccess
 				e.printStackTrace();
 			}
 		}
-                return flightNo;
+                return output;
 	}
         
         /*
