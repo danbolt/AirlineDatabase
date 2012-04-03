@@ -335,9 +335,17 @@ public class DatabaseAccess
                                 } else if (tableName.equals("fliesOn_str")) {
                                     statementString = "SELECT a.flight_ID, a.passengerPassport, a.baggage, b.className FROM fliesOn a,"
                                             + "(SELECT classType AS className, class_ID FROM class) b WHERE a.class_ID = b.class_ID";
-                                } else if (tableName.equals("operatesFlights")) {
+                                } else if (tableName.equals("operatesFlights_str")) {
                                     statementString = "SELECT a.airline, b.flightNo FROM operatesFlights B, (SELECT name AS airline, airline_ID"
                                             + " FROM airline) A WHERE a.airline_ID = b.airline_ID";
+                                } else if (tableName.equals("incoming_str")) {
+                                    statementString = "SELECT a.flightNo, a.plannedArrivalTime, b.loc, c.loc FROM"
+                                            + " incoming A, (SELECT name as loc, location_ID as id from location) b, (SELECT name as loc, location_ID as id from location) c, flight d"
+                                            + " WHERE a.flightNo = d.flightNo AND b.id = d.locationFrom AND c.id = d.locationTo ";
+                                } else if (tableName.equals("outgoing_str")) {
+                                    statementString = "SELECT a.flightNo, a.plannedDepartureTime, b.loc, c.loc FROM"
+                                            + " outgoing A, (SELECT name as loc, location_ID as id from location) b, (SELECT name as loc, location_ID as id from location) c, flight d"
+                                            + " WHERE a.flightNo = d.flightNo AND b.id = d.locationFrom AND c.id = d.locationTo ";
                                 } else {
                                     statementString = "SELECT * FROM " + tableName;                                    
                                 }
