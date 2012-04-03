@@ -977,7 +977,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		else if ("flightsByLine".equals(e.getActionCommand()))
 		{
 			String airline = airlineNameField.getText();
-			
+
 			currentState = TableState.printAirlineFlights;
 
 			textFieldList.clear();
@@ -986,13 +986,29 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			
 			String data[][] = new String[0][3];
 
-			if (database.returnQuery("airline").size() > 0)
+			if (database.printAirlineFlights(airline).size() > 0)
 			{
-				data = new String[database.returnQuery("airline").size()][database.returnQuery("airline").get(0).length];
-				data = database.returnQuery("airline").toArray(data);
+				data = new String[database.printAirlineFlights(airline).size()][database.printAirlineFlights(airline).get(0).length];
+				data = database.printAirlineFlights(airline).toArray(data);
 			}
 			
-			// FINITO
+			DefaultTableModel tm = (DefaultTableModel)table.getModel();
+			tm.setColumnCount(3);
+			String airlineTitles[] = {"Flight Number", "Location From", "Location To"};
+			tm.setColumnIdentifiers(airlineTitles);
+
+			//empty the table's rows and refill them with the pulled DB data
+			while (tm.getRowCount() > 0)
+			{
+				tm.removeRow(0);
+			}
+			for (int i = 0; i < data.length; i++)
+			{
+				tm.addRow(data[i]);
+			}
+			
+			tm.fireTableDataChanged();
+
 		}
 		else if ("delete".equals(e.getActionCommand()))
 		{

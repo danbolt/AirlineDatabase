@@ -99,7 +99,7 @@ public class DatabaseAccess
 		{
 			try
 			{
-				String statementString = "SELECT c.name, b.n2, b.n2 FROM OperatesFlights a, (SELECT a.flightNo as fNO, b.name as n1, c.name as n2 FROM flight a, location b, location c WHERE a.locationFrom = b.location_ID AND a.locationTo = c.location_ID) b, airline c WHERE a.airline_ID = c.airline_ID AND a.flightNo = b.fNO;";
+				String statementString = "SELECT c.name, b.n1, b.n2 FROM OperatesFlights a, (SELECT a.flightNo as fNO, b.name as n1, c.name as n2 FROM flight a, location b, location c WHERE a.locationFrom = b.location_ID AND a.locationTo = c.location_ID) b, airline c WHERE a.airline_ID = c.airline_ID AND a.flightNo = b.fNO;";
 
 				Statement testStatement = connect.createStatement();
 				ResultSet rset = testStatement.executeQuery(statementString);
@@ -107,9 +107,9 @@ public class DatabaseAccess
 				while (rset.next())
 				{
 					String[] row = new String[3];
-                                        row[0] = rset.getString("flightNo");
-                                        row[1] = rset.getString("locationFrom");
-                                        row[2] = rset.getString("locationTo");
+                                        row[0] = rset.getString("name");
+                                        row[1] = rset.getString("n1");
+                                        row[2] = rset.getString("n2");
                                         output.add(row);
                                         
 				}
