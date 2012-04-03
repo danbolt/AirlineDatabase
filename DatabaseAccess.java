@@ -234,7 +234,7 @@ public class DatabaseAccess
         /*
          * Given a flight number, prints information about all passengers on it.
          */
-        public ArrayList<String[]> printArrivalPassengers(int flightNo)
+        public ArrayList<String[]> printArrivalPassengers(String flightNo)
 	{
                 ArrayList<String[]> output = new ArrayList<String[]>();
                 
@@ -274,9 +274,9 @@ public class DatabaseAccess
         /*
          * Given a passenger, print their baggage
          */
-        public int printBaggage(int passenger)
+        public ArrayList<String[]> printBaggage(String passenger)
 	{               
-                int baggage = -1;
+                ArrayList<String[]> output = new ArrayList<String[]>();
 		if (connect != null)
 		{
 			try
@@ -289,7 +289,9 @@ public class DatabaseAccess
 				
 				while (rset.next())
 				{
-                                    baggage = rset.getInt("baggage");
+                                    String[] row = new String[1];
+                                    row[0] = rset.getString("baggage");
+                                    output.add(row);
 				}
 
 				testStatement.close();                            
@@ -300,7 +302,7 @@ public class DatabaseAccess
 				e.printStackTrace();
 			}
 		}
-                return baggage;
+                return output;
 	}
         
         /*
