@@ -955,7 +955,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 		
 		textFieldList = new ArrayList<JComponent>();
 		
-		changeState(TableState.LOCATION);
+		changeState(TableState.AIRLINE);
 
 		rootPanel = new JPanel();
 
@@ -1237,12 +1237,14 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
                 addPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
                 rootPanel.add(addPanel);
 
+		/*
 		JButton jb = new JButton("Fill Tables");
 		jb.setActionCommand("test");
 		jb.addActionListener(this);
 		addPanel.add(jb);
+		*/
 
-		jb = new JButton("Add A Row");
+		JButton jb = new JButton("Add A Row");
 		jb.setActionCommand("add");
 		jb.addActionListener(this);
                 addPanel.add(jb);
