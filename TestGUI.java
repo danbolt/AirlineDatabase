@@ -78,6 +78,9 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 	JComboBox<String> stateSelector;
 	String possibleStates[] = {"Airline", "Flight", "Incoming", "Outgoing", "Arrivals", "Departures", "Passengers", "Class", "Location", "Plane Model"};
 
+	String arrivalStatuses[] = {"Arrived", "Delayed", "Cancelled", "On Time"};
+	String departureStatuses[] = {"Departed", "Delayed", "Cancelled"};
+
 	ArrayList<JComponent> textFieldList;
 
 	public static boolean open = true;
@@ -102,6 +105,10 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			{
 				entryValues.add( String.valueOf(((KeyNamePair)(((JComboBox)textFieldList.get(i)).getSelectedItem())).key) );
 			}
+			else if (textFieldList.get(i).getName().equals("statusCombo"))
+			{
+				entryValues.add( (String)((JComboBox)textFieldList.get(i)).getSelectedItem() );
+			}
 			else if (textFieldList.get(i).getName().equals("date"))
 			{
 				Date eventDate = (Date)((JSpinner)textFieldList.get(i)).getValue();
@@ -117,7 +124,6 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 
 		switch (currentState)
 		{
-
 			case AIRLINE:
 			String[] airlineCols = {"name", "website"};
 			database.addToDatabase("airline", airlineCols, entryValuesString);
@@ -142,6 +148,10 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			case OUTGOING:
                         String[] outCols = {"flightNo", "plannedDepartureTime"};
                         database.addToDatabase("outgoing", outCols, entryValuesString);
+			break;
+			case ARRIVALS:
+                        String[] arrivCols = {"incomingPlane", "gate", "arrivalDate", "arrivalStatus"};
+                        database.addToDatabase("arrivals", arrivCols, entryValuesString);
 			break;
 		}
 
@@ -231,6 +241,10 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				{
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Flight"));
 				}
+				if (currentState == TableState.ARRIVALS)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Flight"));
+				}
 				break;
 				case 1:
 				if (currentState == TableState.AIRLINE)
@@ -254,14 +268,26 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				{
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Time"));
 				}
+				if (currentState == TableState.ARRIVALS)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Gate"));
+				}
 				break;
 				case 2:
 				if (currentState == TableState.FLIGHT)
 				{
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Plane Model"));
 				}
+				if (currentState == TableState.ARRIVALS)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Arrival Date"));
+				}
 				break;
 				case 3:
+				if (currentState == TableState.ARRIVALS)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Status"));
+				}
 				break;
 				case 4:
 				break;
@@ -428,6 +454,41 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				}
 			}
 			break;
+			case ARRIVALS:
+			
+			textFieldList.clear();
+			if (database.returnQuery("incoming").size() > 0)
+			{
+				//get dropbox of Locations
+	                        data = new String[database.returnQuery("incoming").size()][database.returnQuery("incoming").get(0).length];
+				data = database.returnQuery("incoming").toArray(data);
+				ArrayList<KeyNamePair> flightList = new ArrayList<KeyNamePair>();
+				for (int i = 0; i < data.length; i++)
+				{
+					flightList.add(new KeyNamePair(Integer.parseInt(data[i][0]), data[i][0]));
+				}
+				flightArray = new KeyNamePair[flightList.size()];
+				flightArray = flightList.toArray(flightArray);
+			}
+			JComboBox<KeyNamePair> combo = new JComboBox<KeyNamePair>(flightArray);
+			combo.setName("combo");
+			textFieldList.add(combo);
+
+                        JFormattedTextField fld = new JFormattedTextField();
+			fld.setName("field");
+			fld.setText("");
+			fld.setColumns(10);
+			textFieldList.add(fld);
+			
+                        SpinnerDateModel dateModel = new SpinnerDateModel();
+			JSpinner dateSpin = new JSpinner(dateModel);
+			dateSpin.setName("date");
+			textFieldList.add(dateSpin);
+			
+			JComboBox<String> combo2 = new JComboBox<String>(arrivalStatuses);
+			combo2.setName("statusCombo");
+			textFieldList.add(combo2);
+			break;
 		}
 		
 		currentState = newState;
@@ -482,6 +543,13 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				data = database.returnQuery("outgoing_str").toArray(data);
 			}
 			break;
+			case ARRIVALS:
+			if (database.returnQuery("arrivals").size() > 0)
+			{
+				data = new String[database.returnQuery("arrivals").size()][database.returnQuery("arrivals").get(0).length];
+				data = database.returnQuery("arrivals").toArray(data);
+			}
+			break;
 		}
 
 		DefaultTableModel tm = (DefaultTableModel)table.getModel();
@@ -510,14 +578,19 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			tm.setColumnIdentifiers(modelTitles);
 			break;
 			case INCOMING:
-			tm.setColumnCount(3);
+			tm.setColumnCount(4);
 			String incomingTitles[] = {"Flight Number", "Date/Time", "From", "To"};
 			tm.setColumnIdentifiers(incomingTitles);
 			break;
 			case OUTGOING:
-			tm.setColumnCount(3);
+			tm.setColumnCount(4);
 			String outgoingTitles[] = {"Flight Number", "Date/Time", "From", "To"};
 			tm.setColumnIdentifiers(outgoingTitles);
+			break;
+			case ARRIVALS:
+			tm.setColumnCount(4);
+			String arrivalTitles[] = {"Arrival Number", "Flight Number", "Gate", "Arrival Date"};
+			tm.setColumnIdentifiers(arrivalTitles);
 			break;
 		}
 
