@@ -120,12 +120,14 @@ public class DatabaseAccess
                                                 ResultSet locationResults = locationStatement.executeQuery(locationString);
                                                 row[1] = locationResults.getString("loc");
                                                 row[2] = locationResults.getString("loc2");
-                                                output.add(row);                                       
+                                                output.add(row);
+                                                locationStatement.close();
                                             }
+                                            queryStatement.close();
                                             break;
                                         }
 				}
-
+                                
 				testStatement.close();
 			}
 			catch (Exception e)
@@ -140,11 +142,11 @@ public class DatabaseAccess
         /*
          * Given a location, print all flight numbers to or from that location
          */
-        public ArrayList<Integer> printFlightsToFrom(String locationName)
+        public ArrayList<String[]> printFlightsToFrom(String locationName)
 	{
             
                 int locationID;
-                ArrayList<Integer> flightNo = new ArrayList<Integer>();
+                ArrayList<String[]> output = new ArrayList<String[]>();
 		if (connect != null)
 		{
 			try
@@ -163,7 +165,11 @@ public class DatabaseAccess
                                             Statement queryStatement = connect.createStatement();
                                             ResultSet results = queryStatement.executeQuery(queryString);
                                             while(results.next()){
-                                                flightNo.add(results.getInt("flightNo"));
+                                                String[] row = new String[3];
+                                                row[0] = results.getString("flightNo");
+                                                row[1] = results.getString("locationTo");
+                                                row[2] = results.getString("locationFrom");
+                                                output.add(row);
                                             }
                                             queryStatement.close();
                                             break;
@@ -178,7 +184,7 @@ public class DatabaseAccess
 				e.printStackTrace();
 			}
 		}
-                return flightNo;
+                return output;
 	}
         
         /*
