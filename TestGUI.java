@@ -79,6 +79,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 	
 	JFormattedTextField airlineNameField;
 	JFormattedTextField locNameField;
+	JSpinner timeDaySpin;
 
 	JComboBox<String> stateSelector;
 	String possibleStates[] = {"Airline", "Flight", "Incoming", "Outgoing", "Arrivals", "Departures", "Passengers", "Class", "Location", "Plane Model", "Flies On", "Operates Flights"};
@@ -1047,6 +1048,46 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			tm.fireTableDataChanged();
 
 		}
+		else if ("flightsByTime".equals(e.getActionCommand()))
+		{
+			Date eventDate = (Date)(timeDaySpin.getValue());
+				
+			SimpleDateFormat dbDateFormat = new SimpleDateFormat("HH:mm:ss");
+			
+			String timeResult = dbDateFormat.format(eventDate);
+
+			currentState = TableState.printFlightsTime;
+
+			textFieldList.clear();
+			fieldsPanel.removeAll();
+			fieldsPanel.repaint();
+			
+			String data[][] = new String[0][2];
+
+			if (database.printFlightsTime(timeResult).size() > 0)
+			{
+				data = new String[database.printFlightsTime(timeResult).size()][database.printFlightsTime(timeResult).get(0).length];
+				data = database.printFlightsTime(timeResult).toArray(data);
+			}
+			
+			DefaultTableModel tm = (DefaultTableModel)table.getModel();
+			tm.setColumnCount(2);
+			String airlineTitles[] = {"Flight Number", "Status"};
+			tm.setColumnIdentifiers(airlineTitles);
+
+			//empty the table's rows and refill them with the pulled DB data
+			while (tm.getRowCount() > 0)
+			{
+				tm.removeRow(0);
+			}
+			for (int i = 0; i < data.length; i++)
+			{
+				tm.addRow(data[i]);
+			}
+			
+			tm.fireTableDataChanged();
+
+		}
 		else if ("delete".equals(e.getActionCommand()))
 		{
 			removeEntry();
@@ -1107,7 +1148,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 	@Override
 	public void run()
 	{
-		rootPanel.setPreferredSize(new Dimension(640,640));
+		rootPanel.setPreferredSize(new Dimension(840,640));
 
 		add(rootPanel);
 		this.setResizable(false);
@@ -1140,21 +1181,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
                 stateSelector = new JComboBox<String>(possibleStates);
                 stateSelector.addActionListener(this);
                 addPanel.add(stateSelector);
-                
 
-                
-                JPanel locFlightsPanel = new JPanel();
-                locFlightsPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-                jb = new JButton("Display Flights by Location");
-                jb.setActionCommand("flightsByLoc");
-                jb.addActionListener(this);
-                locNameField = new JFormattedTextField();
-		locNameField.setText("");
-		locNameField.setColumns(10);
-                locFlightsPanel.add(locNameField);
-                locFlightsPanel.add(jb);
-                addPanel.add(locFlightsPanel);
-		
 		JPanel airFlightsPanel = new JPanel();
                 airFlightsPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
                 jb = new JButton("Display Flights by Airline");
@@ -1166,6 +1193,29 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
                 airFlightsPanel.add(airlineNameField);
                 airFlightsPanel.add(jb);
                 addPanel.add(airFlightsPanel);
+                
+                JPanel locFlightsPanel = new JPanel();
+                locFlightsPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+                jb = new JButton("Display Flights by Location");
+                jb.setActionCommand("flightsByLoc");
+                jb.addActionListener(this);
+                locNameField = new JFormattedTextField();
+		locNameField.setText("");
+		locNameField.setColumns(10);
+                locFlightsPanel.add(locNameField);
+                locFlightsPanel.add(jb);
+                addPanel.add(locFlightsPanel);  
+                
+                JPanel timeDayPanel = new JPanel();
+                timeDayPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+                jb = new JButton("Display Flights by Time");
+                jb.setActionCommand("flightsByTime");
+                jb.addActionListener(this);
+		SpinnerDateModel dateModel = new SpinnerDateModel();
+		timeDaySpin = new JSpinner(dateModel);
+		timeDayPanel.add(timeDaySpin);
+                timeDayPanel.add(jb);
+                addPanel.add(timeDayPanel);
 
                 deletePopup = new JPopupMenu();
                 JMenuItem menuItem = new JMenuItem("Delete Selected Rows");
