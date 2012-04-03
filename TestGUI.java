@@ -21,9 +21,10 @@ class WindowEventHandler extends WindowAdapter
 public class TestGUI extends JFrame implements Runnable, ActionListener
 {
 	// enum that sets what table is currently being shown
+	// camelCode states
 	private enum TableState
 	{
-		AIRLINE, FLIGHT, INCOMING, OUTGOING, ARRIVALS, DEPARTURES, PASSENGERS, CLASS, LOCATION, PLANEMODEL
+		AIRLINE, FLIGHT, INCOMING, OUTGOING, ARRIVALS, DEPARTURES, PASSENGERS, CLASS, LOCATION, PLANEMODEL, FLIESON, OPERATESFLIGHTS, printAirlineFlights, printFlightsToFrom, printFlightsTime, printArrivalPassengers, printBaggage
 	}
 	
 	// this class is used for binding ID's with string values
@@ -77,7 +78,7 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 	JPopupMenu deletePopup;
 	
 	JComboBox<String> stateSelector;
-	String possibleStates[] = {"Airline", "Flight", "Incoming", "Outgoing", "Arrivals", "Departures", "Passengers", "Class", "Location", "Plane Model"};
+	String possibleStates[] = {"Airline", "Flight", "Incoming", "Outgoing", "Arrivals", "Departures", "Passengers", "Class", "Location", "Plane Model", "Flies On", "Operates Flights"};
 
 	String arrivalStatuses[] = {"Arrived", "Delayed", "Cancelled", "On Time"};
 	String departureStatuses[] = {"Departed", "Delayed", "Cancelled"};
@@ -167,6 +168,14 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
                         String[] classCols = {"classType"};
                         database.addToDatabase("class", classCols, entryValuesString);
 			break;
+			case FLIESON:
+                        String[] fliesOnCols = {"passengerPassport", "baggage", "class_ID", "flight_ID"};
+                        database.addToDatabase("FliesOn", fliesOnCols, entryValuesString);
+			break;
+			case OPERATESFLIGHTS:
+                        String[] operatesCols = {"airline_ID", "flightNo"};
+                        database.addToDatabase("OperatesFlights", operatesCols, entryValuesString);
+			break;
 		}
 
 		reloadEntries();
@@ -210,6 +219,12 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				break;
     				case CLASS:
 				database.removeFromDatabase("class", "class_ID", (String)tModel.getValueAt(i, 0));
+				break;
+    				case FLIESON:
+				database.removeFromDatabase("FliesOn", "flight_ID", (String)tModel.getValueAt(i, 0));
+				break;
+    				case OPERATESFLIGHTS:
+				database.removeFromDatabase("OperatesFlights", "airline_ID", (String)tModel.getValueAt(i, 0));
 				break;
 			}
 		}
@@ -271,6 +286,14 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				{
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Class Type"));
 				}
+				if (currentState == TableState.FLIESON)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Passenger"));
+				}
+				if (currentState == TableState.OPERATESFLIGHTS)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Airline"));
+				}
 				break;
 				case 1:
 				if (currentState == TableState.AIRLINE)
@@ -306,6 +329,14 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				{
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Name"));
 				}
+				if (currentState == TableState.FLIESON)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Baggage"));
+				}
+				if (currentState == TableState.OPERATESFLIGHTS)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Flight Number"));
+				}
 				break;
 				case 2:
 				if (currentState == TableState.FLIGHT)
@@ -324,6 +355,10 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				{
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Date of Birth"));
 				}
+				if (currentState == TableState.FLIESON)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Class"));
+				}
 				break;
 				case 3:
 				if (currentState == TableState.ARRIVALS)
@@ -338,6 +373,10 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				{
 					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Place of Birth"));
 				}
+				if (currentState == TableState.FLIESON)
+				{
+					pan.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Flight"));
+				}
 				break;
 				case 4:
 				if (currentState == TableState.PASSENGERS)
@@ -346,7 +385,6 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				}
 				break;
 			}
-			//((JFormattedTextField)textFieldList.get(i)).setText("");
 			pan.add(textFieldList.get(i));
 			fieldsPanel.add(pan);
 		}
@@ -619,6 +657,109 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				textFieldList.add(combo2);
 			}
 			break;
+			case FLIESON:
+			textFieldList.clear();
+			if (database.returnQuery("passengers").size() > 0)
+			{
+				//get dropbox of Locations
+	                        data = new String[database.returnQuery("passengers").size()][database.returnQuery("passengers").get(0).length];
+				data = database.returnQuery("passengers").toArray(data);
+				ArrayList<KeyNamePair> flightList = new ArrayList<KeyNamePair>();
+				for (int i = 0; i < data.length; i++)
+				{
+					flightList.add(new KeyNamePair(Integer.parseInt(data[i][0]), data[i][1]));
+				}
+				flightArray = new KeyNamePair[flightList.size()];
+				flightArray = flightList.toArray(flightArray);
+			}
+			{
+				JComboBox<KeyNamePair> combo = new JComboBox<KeyNamePair>(flightArray);
+				combo.setName("combo");
+				textFieldList.add(combo);
+			}
+			{
+				JFormattedTextField fld = new JFormattedTextField();
+				fld.setName("field");
+				fld.setText("");
+				fld.setColumns(10);
+				textFieldList.add(fld);
+			}
+			if (database.returnQuery("class").size() > 0)
+			{
+				//get dropbox of Locations
+	                        data = new String[database.returnQuery("class").size()][database.returnQuery("class").get(0).length];
+				data = database.returnQuery("class").toArray(data);
+				ArrayList<KeyNamePair> flightList = new ArrayList<KeyNamePair>();
+				for (int i = 0; i < data.length; i++)
+				{
+					flightList.add(new KeyNamePair(Integer.parseInt(data[i][0]), data[i][1]));
+				}
+				flightArray = new KeyNamePair[flightList.size()];
+				flightArray = flightList.toArray(flightArray);
+			}
+			{
+				JComboBox<KeyNamePair> combo = new JComboBox<KeyNamePair>(flightArray);
+				combo.setName("combo");
+				textFieldList.add(combo);
+			}
+			if (database.returnQuery("flight").size() > 0)
+			{
+				//get dropbox of Locations
+	                        data = new String[database.returnQuery("flight_str").size()][database.returnQuery("flight_str").get(0).length];
+				data = database.returnQuery("flight_str").toArray(data);
+				ArrayList<KeyNamePair> flightList = new ArrayList<KeyNamePair>();
+				for (int i = 0; i < data.length; i++)
+				{
+					flightList.add(new KeyNamePair(Integer.parseInt(data[i][0]), data[i][0]));
+				}
+				flightArray = new KeyNamePair[flightList.size()];
+				flightArray = flightList.toArray(flightArray);
+			}
+			{
+				JComboBox<KeyNamePair> combo = new JComboBox<KeyNamePair>(flightArray);
+				combo.setName("combo");
+				textFieldList.add(combo);
+			}
+			break;
+			case OPERATESFLIGHTS:
+			textFieldList.clear();
+			if (database.returnQuery("airline").size() > 0)
+			{
+				//get dropbox of Locations
+	                        data = new String[database.returnQuery("airline").size()][database.returnQuery("airline").get(0).length];
+				data = database.returnQuery("airline").toArray(data);
+				ArrayList<KeyNamePair> flightList = new ArrayList<KeyNamePair>();
+				for (int i = 0; i < data.length; i++)
+				{
+					flightList.add(new KeyNamePair(Integer.parseInt(data[i][0]), data[i][1]));
+				}
+				flightArray = new KeyNamePair[flightList.size()];
+				flightArray = flightList.toArray(flightArray);
+			}
+			{
+				JComboBox<KeyNamePair> combo = new JComboBox<KeyNamePair>(flightArray);
+				combo.setName("combo");
+				textFieldList.add(combo);
+			}
+			if (database.returnQuery("flight").size() > 0)
+			{
+				//get dropbox of Locations
+	                        data = new String[database.returnQuery("flight").size()][database.returnQuery("flight").get(0).length];
+				data = database.returnQuery("flight").toArray(data);
+				ArrayList<KeyNamePair> flightList = new ArrayList<KeyNamePair>();
+				for (int i = 0; i < data.length; i++)
+				{
+					flightList.add(new KeyNamePair(Integer.parseInt(data[i][0]), data[i][0]));
+				}
+				flightArray = new KeyNamePair[flightList.size()];
+				flightArray = flightList.toArray(flightArray);
+			}
+			{
+				JComboBox<KeyNamePair> combo = new JComboBox<KeyNamePair>(flightArray);
+				combo.setName("combo");
+				textFieldList.add(combo);
+			}
+			break;
 		}
 		
 		currentState = newState;
@@ -701,6 +842,20 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				data = database.returnQuery("class").toArray(data);
 			}
 			break;
+			case FLIESON:
+			if (database.returnQuery("FliesOn").size() > 0)
+			{
+				data = new String[database.returnQuery("FliesOn").size()][database.returnQuery("FliesOn").get(0).length];
+				data = database.returnQuery("FliesOn").toArray(data);
+			}
+			break;
+			case OPERATESFLIGHTS:
+			if (database.returnQuery("OperatesFlights").size() > 0)
+			{
+				data = new String[database.returnQuery("OperatesFlights").size()][database.returnQuery("OperatesFlights").get(0).length];
+				data = database.returnQuery("OperatesFlights").toArray(data);
+			}
+			break;
 		}
 
 		DefaultTableModel tm = (DefaultTableModel)table.getModel();
@@ -757,6 +912,16 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 			tm.setColumnCount(2);
 			String classTitles[] = {"Class ID", "Type"};
 			tm.setColumnIdentifiers(classTitles);
+			break;
+			case FLIESON:
+			tm.setColumnCount(4);
+			String fliesOnTitles[] = {"Flight ID", "Passenger Passport", "Baggage", "Class"};
+			tm.setColumnIdentifiers(fliesOnTitles);
+			break;
+			case OPERATESFLIGHTS:
+			tm.setColumnCount(2);
+			String operatesTitles[] = {"Airline", "Flight Number"};
+			tm.setColumnIdentifiers(operatesTitles);
 			break;
 		}
 
@@ -847,6 +1012,12 @@ public class TestGUI extends JFrame implements Runnable, ActionListener
 				break;
 				case "Plane Model":
 				changeState(TableState.PLANEMODEL);
+				break;
+				case "Flies On":
+				changeState(TableState.FLIESON);
+				break;
+				case "Operates Flights":
+				changeState(TableState.OPERATESFLIGHTS);
 				break;
 				default:
 				break;
