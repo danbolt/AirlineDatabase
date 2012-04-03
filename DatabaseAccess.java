@@ -346,6 +346,10 @@ public class DatabaseAccess
                                     statementString = "SELECT a.flightNo, a.plannedDepartureTime, b.loc, c.loc FROM"
                                             + " outgoing A, (SELECT name as loc, location_ID as id from location) b, (SELECT name as loc, location_ID as id from location) c, flight d"
                                             + " WHERE a.flightNo = d.flightNo AND b.id = d.locationFrom AND c.id = d.locationTo ";
+                                } else if (tableName.equals("incoming_str_notInFlight")) {
+                                    statementString = "SELECT a.flightNo, b.loc, c.loc, d.pname FROM flight a, (SELECT name as loc, location_ID as id from location) b, (SELECT name as loc, location_ID as id from location) c, (SELECT model as pname, plane_ID as id from planeModel) d WHERE a.locationFrom = b.id AND a.locationTo = c.id AND a.planeModel = d.id AND a.flightNo NOT IN (SELECT flightNo FROM incoming);";                                                                           
+                                } else if (tableName.equals("outgoing_str_notInFlight")) {
+                                    statementString="SELECT a.flightNo, b.loc, c.loc, d.pname FROM flight a, (SELECT name as loc, location_ID as id from location) b, (SELECT name as loc, location_ID as id from location) c, (SELECT model as pname, plane_ID as id from planeModel) d WHERE a.locationFrom = b.id AND a.locationTo = c.id AND a.planeModel = d.id AND a.flightNo NOT IN (SELECT flightNo FROM outgoing);";
                                 } else {
                                     statementString = "SELECT * FROM " + tableName;                                    
                                 }
