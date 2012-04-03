@@ -232,15 +232,15 @@ public class DatabaseAccess
 				
 				while (results.next())
 				{
-                                        retrievedTime = results.getTime("arrivalDate");
+                                        retrievedTime = results.getTime("departureDate");
                                         if((retrievedTime.getTime() > sqlTime.getTime() &&
                                                 retrievedTime.getTime() < sqlTime.getTime() + 1800000) || 
                                                 retrievedTime.getTime() < sqlTime.getTime() &&
                                                 retrievedTime.getTime() > sqlTime.getTime() - 1800000){
                                             
                                             String[] row = new String[2];
-                                            flight = results.getString("incomingPlane");
-                                            status = results.getString("arrivalStatus");
+                                            flight = results.getString("outgoingPlane");
+                                            status = results.getString("departureStatus");
                                             row[0] = flight;
                                             row[1] = status;
                                             output.add(row);
