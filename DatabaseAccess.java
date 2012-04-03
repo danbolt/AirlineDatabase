@@ -99,33 +99,19 @@ public class DatabaseAccess
 		{
 			try
 			{
-				String statementString = "SELECT * FROM airline";
+				String statementString = "SELECT c.name, b.n2, b.n2 FROM OperatesFlights a, (SELECT a.flightNo as fNO, b.name as n1, c.name as n2 FROM flight a, location b, location c WHERE a.locationFrom = b.location_ID AND a.locationTo = c.location_ID) b, airline c WHERE a.airline_ID = c.airline_ID AND a.flightNo = b.fNO;";
 
 				Statement testStatement = connect.createStatement();
 				ResultSet rset = testStatement.executeQuery(statementString);
 				
 				while (rset.next())
 				{
-					String s = rset.getString("name");
-					if(s.equalsIgnoreCase(airlineName)) {
-                                            airlineID = rset.getInt("airline_ID");
-                                            String queryString = "SELECT * FROM OperatesFlights WHERE airline_ID = " + airlineID;
-                                            Statement queryStatement = connect.createStatement();
-                                            ResultSet results = queryStatement.executeQuery(queryString);
-                                            while(results.next()){
-                                                String[] row = new String[3];
-                                                row[0] = results.getString("flightNo");
-                                                String locationString = "SELECT a.flightNo, b.loc, c.loc2, d.pname FROM flight a, (SELECT name as loc, location_ID as id from location) b, (SELECT name as loc2, location_ID as id from location) c, (SELECT model as pname, plane_ID as id from planeModel) d WHERE a.locationFrom = b.id AND a.locationTo = c.id AND a.planeModel = d.id AND a.flightNo =" + row[0];
-                                                Statement locationStatement = connect.createStatement();
-                                                ResultSet locationResults = locationStatement.executeQuery(locationString);
-                                                row[1] = locationResults.getString("loc");
-                                                row[2] = locationResults.getString("loc2");
-                                                output.add(row);
-                                                locationStatement.close();
-                                            }
-                                            queryStatement.close();
-                                            break;
-                                        }
+					String[] row = new String[3];
+                                        row[0] = rset.getString("flightNo");
+                                        row[1] = rset.getString("locationFrom");
+                                        row[2] = rset.getString("locationTo");
+                                        output.add(row);
+                                        
 				}
                                 
 				testStatement.close();
